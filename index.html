@@ -1,0 +1,2209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5" />
+  <title>📱 MTN SMS Hub · ELAF</title>
+  <!-- Tailwind via CDN -->
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <!-- QRCode.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
+  </script>
+  <style>
+    /* --- Custom animations & dark mode overrides --- */
+    @keyframes float {
+      0%,
+      100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-6px);
+      }
+    }
+    @keyframes pulseGlow {
+      0%,
+      100% {
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+      }
+      50% {
+        box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
+      }
+    }
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    @keyframes spinSlow {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+    .animate-float {
+      animation: float 3s ease-in-out infinite;
+    }
+    .animate-pulse-glow {
+      animation: pulseGlow 2.5s ease-in-out infinite;
+    }
+    .animate-slide-down {
+      animation: slideDown 0.5s ease forwards;
+    }
+    .animate-fade-in-up {
+      animation: fadeInUp 0.6s ease forwards;
+    }
+    .animate-spin-slow {
+      animation: spinSlow 6s linear infinite;
+    }
+    .transition-all-300 {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .nav-link-active {
+      @apply bg-white/20 text-white shadow-lg shadow-blue-500/20;
+    }
+    /* Dark mode overrides for Tailwind */
+    body.dark-mode {
+      background-color: #0a0f1a;
+    }
+    body.dark-mode #app {
+      background-color: #1a1f2e;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+    }
+    body.dark-mode .bg-white {
+      background-color: #1a1f2e !important;
+    }
+    body.dark-mode .text-gray-700,
+    body.dark-mode .text-gray-600,
+    body.dark-mode .text-gray-500,
+    body.dark-mode .text-gray-800,
+    body.dark-mode .text-gray-900,
+    body.dark-mode .text-slate-700,
+    body.dark-mode .text-slate-600,
+    body.dark-mode h1,
+    body.dark-mode h2,
+    body.dark-mode h3,
+    body.dark-mode p,
+    body.dark-mode span:not(.elaf):not(.text-amber-400) {
+      color: #e2e8f0 !important;
+    }
+    body.dark-mode .border-gray-200,
+    body.dark-mode .border-gray-100,
+    body.dark-mode .border-slate-200 {
+      border-color: #2a3a4a !important;
+    }
+    body.dark-mode .bg-gray-50,
+    body.dark-mode .bg-slate-50,
+    body.dark-mode .bg-blue-50,
+    body.dark-mode .bg-indigo-50,
+    body.dark-mode .bg-gray-100 {
+      background-color: #1e2a3a !important;
+    }
+    body.dark-mode .shadow-sm,
+    body.dark-mode .shadow,
+    body.dark-mode .shadow-md {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    }
+    body.dark-mode .hover\:bg-gray-50:hover {
+      background-color: #2a3a4a !important;
+    }
+    body.dark-mode .hover\:bg-gray-100:hover {
+      background-color: #2a3a4a !important;
+    }
+    body.dark-mode .chat-message.user {
+      background-color: #1e3a5f;
+      color: #e2e8f0;
+    }
+    body.dark-mode .chat-message.bot {
+      background-color: #2a3a4a;
+      color: #e2e8f0;
+    }
+    body.dark-mode .sms-box .sms-item {
+      border-bottom-color: #2a3a4a;
+    }
+    body.dark-mode .sms-box .sms-item .msg {
+      color: #e2e8f0;
+    }
+    body.dark-mode .sms-box .sms-item .sender {
+      color: #60a5fa;
+    }
+    body.dark-mode .sms-box .sms-item .time {
+      color: #94a3b8;
+    }
+    body.dark-mode .contact-card {
+      background-color: #1a1f2e;
+      border-color: #2a3a4a;
+    }
+    body.dark-mode .contact-card .email,
+    body.dark-mode .contact-card .languages {
+      color: #94a3b8 !important;
+    }
+    body.dark-mode .contact-card h3 {
+      color: #e2e8f0 !important;
+    }
+    body.dark-mode .network-card {
+      background-color: #1e2a3a;
+      border-color: #2a3a4a;
+    }
+    body.dark-mode .network-card .phone-display {
+      background-color: #1a1f2e;
+      border-color: #2a3a4a;
+      color: #e2e8f0;
+    }
+    body.dark-mode .form-card {
+      background-color: #1e2a3a;
+      border-color: #2a3a4a;
+    }
+    body.dark-mode .form-card input,
+    body.dark-mode .form-card select,
+    body.dark-mode .form-card textarea {
+      background-color: #1a1f2e;
+      border-color: #2a3a4a;
+      color: #e2e8f0;
+    }
+    body.dark-mode .translate-bar {
+      background-color: #1e2a3a;
+      border-color: #2a3a4a;
+    }
+    body.dark-mode .translate-bar input,
+    body.dark-mode .translate-bar select {
+      background-color: #1a1f2e;
+      border-color: #2a3a4a;
+      color: #e2e8f0;
+    }
+    body.dark-mode .qr-code-section {
+      background-color: #1e2a3a;
+      border-color: #2a3a4a;
+    }
+    body.dark-mode .qr-code-section input {
+      background-color: #1a1f2e;
+      border-color: #2a3a4a;
+      color: #e2e8f0;
+    }
+    body.dark-mode .qr-display {
+      background-color: #1a1f2e;
+      border-color: #2a3a4a;
+    }
+    body.dark-mode .stats-grid {
+      background-color: #1a1f2e;
+      border-color: #2a3a4a;
+    }
+    body.dark-mode .stats-grid .stat-item {
+      background-color: #1e2a3a;
+      border-color: #2a3a4a;
+      color: #e2e8f0;
+    }
+    body.dark-mode .stats-grid .stat-item span {
+      color: #60a5fa;
+    }
+    body.dark-mode .info-banner {
+      background-color: #1a2a1a;
+      border-color: #2a3a2a;
+    }
+    body.dark-mode .info-banner .text {
+      color: #a0d0a0 !important;
+    }
+    body.dark-mode .chat-container {
+      background-color: #1a1f2e;
+      border-color: #2a3a4a;
+    }
+    body.dark-mode .chat-input-group input {
+      background-color: #1a1f2e;
+      border-color: #2a3a4a;
+      color: #e2e8f0;
+    }
+    body.dark-mode .modal-box {
+      background-color: #1a1f2e;
+    }
+    body.dark-mode .modal-box h3 {
+      color: #e2e8f0;
+    }
+    body.dark-mode .modal-box textarea {
+      background-color: #1a1f2e;
+      border-color: #2a3a4a;
+      color: #e2e8f0;
+    }
+    body.dark-mode .modal-box .modal-actions button.cancel {
+      background-color: #2a3a4a;
+      color: #e2e8f0;
+    }
+    body.dark-mode .tool-card {
+      background-color: #1e2a3a;
+      border-color: #2a3a4a;
+    }
+    body.dark-mode .tool-card h3 {
+      color: #e2e8f0;
+    }
+    body.dark-mode .calculator-grid .calc-display {
+      background-color: #1a1f2e;
+      border-color: #2a3a4a;
+      color: #e2e8f0;
+    }
+    body.dark-mode .calculator-grid button {
+      background-color: #1a1f2e;
+      border-color: #2a3a4a;
+      color: #e2e8f0;
+    }
+    body.dark-mode .calculator-grid button.operator {
+      background-color: #1a3a5a;
+      color: #60a5fa;
+    }
+    body.dark-mode .calculator-grid button.clear {
+      background-color: #3a1a1a;
+      color: #f87171;
+      border-color: #5a2a2a;
+    }
+    body.dark-mode .search-box {
+      background-color: #1a1f2e;
+      border-color: #2a3a4a;
+    }
+    body.dark-mode .search-box input {
+      background-color: #1a1f2e;
+      color: #e2e8f0;
+    }
+    body.dark-mode .connect-bar {
+      background-color: #1e2a3a;
+      border-color: #2a3a4a;
+    }
+    body.dark-mode .connect-bar .badge {
+      background-color: #2a3a4a;
+      color: #e2e8f0;
+      border-color: #3a4a5a;
+    }
+    body.dark-mode .connect-bar .badge.active-5g {
+      background-color: #064e3b;
+      color: #86efac;
+      border-color: #065f46;
+    }
+    body.dark-mode .connect-bar .badge.sim-mtn {
+      background-color: #78350f;
+      color: #fcd34d;
+      border-color: #92400e;
+    }
+    body.dark-mode .connect-bar .badge.google-sync {
+      background-color: #7f1d1d;
+      color: #fca5a5;
+      border-color: #b91c1c;
+    }
+    body.dark-mode .connect-bar .badge.whatsapp-connected {
+      background-color: #064e3b;
+      color: #86efac;
+      border-color: #065f46;
+    }
+    body.dark-mode .auth-container h1 {
+      color: #e2e8f0;
+    }
+    body.dark-mode .auth-tabs button {
+      background-color: #1a1f2e;
+      color: #e2e8f0;
+      border-color: #2a3a4a;
+    }
+    body.dark-mode .auth-tabs button.active {
+      background-color: #2563eb;
+      color: white;
+      border-color: #2563eb;
+    }
+    body.dark-mode .auth-form input {
+      background-color: #1a1f2e;
+      color: #e2e8f0;
+      border-color: #2a3a4a;
+    }
+
+    /* Print styles */
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      .contact-card {
+        break-inside: avoid;
+        border: 1px solid #ddd !important;
+      }
+      #app {
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        padding: 20px !important;
+      }
+      body {
+        background: white !important;
+      }
+      .sms-box {
+        max-height: none !important;
+        overflow: visible !important;
+      }
+      .contact-card .delete-btn,
+      .contact-card .chat-btn,
+      .contact-card .whatsapp-btn {
+        display: none !important;
+      }
+      .contact-card .qr-container {
+        display: none !important;
+      }
+      .sms-box .sms-item .msg-actions {
+        display: none !important;
+      }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #93c5fd;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #60a5fa;
+    }
+    body.dark-mode ::-webkit-scrollbar-track {
+      background: #1a1f2e;
+    }
+    body.dark-mode ::-webkit-scrollbar-thumb {
+      background: #3b82f6;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="max-w-[1500px] w-full bg-white rounded-[36px] shadow-2xl p-6 md:p-8 transition-all duration-300 mx-auto">
+
+    <!-- ============================================================ -->
+    <!-- AUTH CONTAINER -->
+    <!-- ============================================================ -->
+    <div id="auth-container" class="flex flex-col items-center gap-6 py-8 animate-fade-in-up">
+      <h1 class="text-4xl md:text-5xl font-bold text-slate-800 text-center">
+        🔐 Welcome · <span class="bg-gradient-to-r from-amber-300 to-amber-500 bg-clip-text text-transparent">ELAF</span>
+      </h1>
+      <p class="text-slate-500 text-center max-w-md">👋 Welcome to MTN SMS Hub · ELAF. Please login or sign up to continue.</p>
+
+      <div class="auth-tabs flex gap-4 mt-2">
+        <button id="tab-login" class="active px-8 py-2.5 rounded-full border border-slate-200 font-semibold transition-all hover:bg-slate-50 active:bg-slate-200">Login</button>
+        <button id="tab-signup" class="px-8 py-2.5 rounded-full border border-slate-200 font-semibold transition-all hover:bg-slate-50 active:bg-slate-200">Sign Up</button>
+      </div>
+
+      <div id="auth-error" class="text-red-600 bg-red-50 px-6 py-2 rounded-full text-sm hidden"></div>
+
+      <!-- Login Form -->
+      <form id="login-form" class="auth-form w-full max-w-md flex flex-col gap-4">
+        <input type="email" id="login-email" placeholder="Email" class="w-full px-5 py-3.5 rounded-full border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" required />
+        <div class="input-group relative">
+          <input type="password" id="login-password" placeholder="Password" class="w-full px-5 py-3.5 rounded-full border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition pr-28" required />
+          <button type="button" class="fingerprint-btn absolute right-14 top-1/2 -translate-y-1/2 text-blue-500 hover:text-blue-600 text-lg p-1.5 rounded-full hover:bg-blue-50 transition" id="fingerprint-btn" title="Fingerprint">
+            <i class="fas fa-fingerprint"></i>
+          </button>
+          <button type="button" class="toggle-pw absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1.5 rounded-full hover:bg-slate-100 transition" data-target="login-password">
+            <i class="fas fa-eye"></i>
+          </button>
+        </div>
+        <button type="submit" class="w-full py-3.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition shadow-lg shadow-blue-500/30">Login</button>
+        <p class="text-sm text-slate-400 text-center">Demo: any email/password works</p>
+      </form>
+
+      <!-- Signup Form -->
+      <form id="signup-form" class="auth-form w-full max-w-md flex flex-col gap-4 hidden">
+        <input type="text" id="signup-name" placeholder="Full Name" class="w-full px-5 py-3.5 rounded-full border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" required />
+        <input type="email" id="signup-email" placeholder="Email" class="w-full px-5 py-3.5 rounded-full border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" required />
+        <div class="input-group relative">
+          <input type="password" id="signup-password" placeholder="Password (min 4 chars)" class="w-full px-5 py-3.5 rounded-full border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition pr-28" required minlength="4" />
+          <button type="button" class="fingerprint-btn absolute right-14 top-1/2 -translate-y-1/2 text-blue-500 hover:text-blue-600 text-lg p-1.5 rounded-full hover:bg-blue-50 transition" id="fingerprint-btn-signup" title="Fingerprint">
+            <i class="fas fa-fingerprint"></i>
+          </button>
+          <button type="button" class="toggle-pw absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1.5 rounded-full hover:bg-slate-100 transition" data-target="signup-password">
+            <i class="fas fa-eye"></i>
+          </button>
+        </div>
+        <button type="submit" class="w-full py-3.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition shadow-lg shadow-blue-500/30">Create Account</button>
+      </form>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- DASHBOARD -->
+    <!-- ============================================================ -->
+    <section id="dashboard" class="hidden">
+
+      <!-- ========== NAVBAR ========== -->
+      <nav class="nav-bar relative flex flex-wrap items-center justify-between gap-3 px-5 py-3 rounded-full mb-5 shadow-lg overflow-hidden transition-all duration-500"
+      style="background: linear-gradient(135deg, #0b1a33 0%, #1a2f4f 100%);">
+      <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-amber-500/10 animate-pulse-glow pointer-events-none"></div>
+
+      <div class="brand flex items-center gap-3 text-white font-bold text-xl relative z-10">
+        <i class="fas fa-satellite-dish text-2xl text-blue-400 animate-float"></i>
+        <span>📱 MTN SMS Hub · <span class="elaf bg-gradient-to-r from-amber-300 to-amber-500 bg-clip-text text-transparent text-2xl">ELAF</span></span>
+      </div>
+
+      <div class="nav-links flex items-center gap-1 flex-wrap relative z-10">
+        <a data-section="home" class="active flex items-center gap-2 px-4 py-2 rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300 text-sm font-medium">
+          <i class="fas fa-home"></i> Home
+        </a>
+        <a data-section="contacts" class="flex items-center gap-2 px-4 py-2 rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300 text-sm font-medium">
+          <i class="fas fa-users"></i> Contacts <span class="badge bg-red-500 text-white text-xs px-2 py-0.5 rounded-full" id="contact-badge">0</span>
+        </a>
+        <a data-section="sms" class="flex items-center gap-2 px-4 py-2 rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300 text-sm font-medium">
+          <i class="fas fa-sms"></i> SMS <span class="badge bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full" id="sms-badge">0</span>
+        </a>
+        <a data-section="qr" class="flex items-center gap-2 px-4 py-2 rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300 text-sm font-medium">
+          <i class="fas fa-qrcode"></i> QR
+        </a>
+        <a data-section="settings" class="flex items-center gap-2 px-4 py-2 rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300 text-sm font-medium">
+          <i class="fas fa-cog"></i> Settings
+        </a>
+      </div>
+
+      <!-- Color Theme Toggle -->
+      <div class="color-toggle-wrap relative z-10 flex items-center gap-2">
+        <button id="colorToggleBtn" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-white/80 hover:bg-white/20 transition text-sm">
+          <i class="fas fa-palette"></i> <span>Theme</span> <i class="fas fa-chevron-down text-[10px]"></i>
+        </button>
+        <div id="colorPickerPopup" class="absolute top-full right-0 mt-2 bg-white dark:bg-slate-800 rounded-2xl p-3 shadow-2xl border border-slate-200 dark:border-slate-700 hidden flex-wrap gap-2 z-50 min-w-[180px]">
+          <div class="color-option active-opt w-8 h-8 rounded-full border-2 border-transparent cursor-pointer transition hover:scale-110" data-theme="default" style="background:linear-gradient(135deg,#0b1a33,#1a2f4f);" title="Default"><i class="fas fa-check text-white text-[10px]"></i></div>
+          <div class="color-option w-8 h-8 rounded-full border-2 border-transparent cursor-pointer transition hover:scale-110" data-theme="blue" style="background:linear-gradient(135deg,#1e3a5f,#2563eb);" title="Blue"></div>
+          <div class="color-option w-8 h-8 rounded-full border-2 border-transparent cursor-pointer transition hover:scale-110" data-theme="green" style="background:linear-gradient(135deg,#064e3b,#22c55e);" title="Green"></div>
+          <div class="color-option w-8 h-8 rounded-full border-2 border-transparent cursor-pointer transition hover:scale-110" data-theme="red" style="background:linear-gradient(135deg,#7f1d1d,#ef4444);" title="Red"></div>
+          <div class="color-option w-8 h-8 rounded-full border-2 border-transparent cursor-pointer transition hover:scale-110" data-theme="purple" style="background:linear-gradient(135deg,#4c1d95,#8b5cf6);" title="Purple"></div>
+          <div class="color-option w-8 h-8 rounded-full border-2 border-transparent cursor-pointer transition hover:scale-110" data-theme="orange" style="background:linear-gradient(135deg,#78350f,#f59e0b);" title="Orange"></div>
+          <div class="color-option w-8 h-8 rounded-full border-2 border-transparent cursor-pointer transition hover:scale-110" data-theme="pink" style="background:linear-gradient(135deg,#831843,#ec4899);" title="Pink"></div>
+          <div class="color-option w-8 h-8 rounded-full border-2 border-transparent cursor-pointer transition hover:scale-110" data-theme="teal" style="background:linear-gradient(135deg,#134e4a,#14b8a6);" title="Teal"></div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ========== THEME CONTROLS ========== -->
+    <div class="theme-controls flex flex-wrap items-center gap-4 px-5 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-full border border-slate-200 dark:border-slate-700 mb-4 no-print">
+      <div class="flex items-center gap-2">
+        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1"><i class="fas fa-sun"></i> Bright</label>
+        <input type="range" id="brightnessSlider" min="0.5" max="1.5" step="0.05" value="1" class="w-24 accent-blue-500 cursor-pointer" />
+        <span id="brightnessVal" class="text-xs text-slate-500 dark:text-slate-400 w-8 text-center">1.00</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1"><i class="fas fa-camera"></i> Expo</label>
+        <input type="range" id="exposureSlider" min="0.5" max="1.5" step="0.05" value="1" class="w-24 accent-blue-500 cursor-pointer" />
+        <span id="exposureVal" class="text-xs text-slate-500 dark:text-slate-400 w-8 text-center">1.00</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1"><i class="fas fa-adjust"></i> Cont</label>
+        <input type="range" id="contrastSlider" min="0.5" max="1.5" step="0.05" value="1" class="w-24 accent-blue-500 cursor-pointer" />
+        <span id="contrastVal" class="text-xs text-slate-500 dark:text-slate-400 w-8 text-center">1.00</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1"><i class="fas fa-highlighter"></i> High</label>
+        <input type="range" id="highlightsSlider" min="0.5" max="1.5" step="0.05" value="1" class="w-24 accent-blue-500 cursor-pointer" />
+        <span id="highlightsVal" class="text-xs text-slate-500 dark:text-slate-400 w-8 text-center">1.00</span>
+      </div>
+      <button id="darkModeToggle" class="px-4 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold transition"><i class="fas fa-moon"></i> Dark</button>
+      <button id="resetThemeBtn" class="px-4 py-1.5 rounded-full bg-slate-400 hover:bg-slate-500 text-white text-sm font-semibold transition"><i class="fas fa-undo"></i> Reset</button>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- HOME SECTION -->
+    <!-- ============================================================ -->
+    <div id="section-home" class="section animate-fade-in-up">
+
+      <!-- Header -->
+      <div class="main-header flex flex-wrap justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-4 mb-5">
+        <h1 class="text-2xl md:text-3xl font-bold text-slate-800 dark:text-slate-100">📱 MTN SMS Hub · 5G</h1>
+        <div class="user-info flex items-center gap-3 flex-wrap no-print">
+          <span class="font-medium text-slate-600 dark:text-slate-300"><i class="fas fa-user-circle"></i> <span id="dash-username">User</span></span>
+          <div class="clock-display bg-slate-800 text-white px-4 py-1.5 rounded-full font-mono text-sm min-w-[130px] text-center">⏰ 00:00:00</div>
+          <button id="print-btn" class="px-4 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold transition"><i class="fas fa-print"></i> Print</button>
+          <button id="logout-btn" class="px-4 py-1.5 rounded-full bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-sm font-semibold transition"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="flex flex-wrap gap-3 mb-5 no-print">
+        <div class="search-box flex items-center gap-3 px-4 py-2 bg-white dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700 flex-1 min-w-[150px] transition focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20">
+          <i class="fas fa-search text-slate-400"></i>
+          <input type="text" id="globalSearch" placeholder="Search contacts, messages, or Google..." class="flex-1 bg-transparent outline-none text-sm" />
+          <button id="clearSearchBtn" class="text-slate-400 hover:text-slate-600 hidden"><i class="fas fa-times"></i></button>
+        </div>
+        <button onclick="performGoogleSearch()" class="px-5 py-2 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold transition flex items-center gap-2"><i class="fab fa-google"></i> Google Search</button>
+        <button onclick="performWebSearch()" class="px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition flex items-center gap-2"><i class="fas fa-globe"></i> Web Search</button>
+      </div>
+
+      <!-- Tools: Calendar + Calculator -->
+      <div class="tools-grid grid grid-cols-1 md:grid-cols-2 gap-5 mb-5 no-print">
+        <div class="tool-card bg-slate-50 dark:bg-slate-800/50 p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
+          <h3 class="flex items-center gap-2 text-lg font-semibold text-slate-800 dark:text-slate-200"><i class="fas fa-calendar-alt text-blue-500"></i> Calendar <span id="calendar-month" class="text-sm font-normal text-slate-500 dark:text-slate-400"></span></h3>
+          <div class="calendar-grid grid grid-cols-7 gap-1 text-center mt-3" id="calendar-grid"></div>
+        </div>
+        <div class="tool-card bg-slate-50 dark:bg-slate-800/50 p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
+          <h3 class="flex items-center gap-2 text-lg font-semibold text-slate-800 dark:text-slate-200"><i class="fas fa-calculator text-blue-500"></i> Calculator</h3>
+          <div class="calculator-grid grid grid-cols-4 gap-1.5 mt-3" id="calculator">
+            <div class="calc-display col-span-4 bg-white dark:bg-slate-800 px-4 py-3 rounded-xl text-right text-xl font-mono border border-slate-200 dark:border-slate-700 min-h-[50px] text-slate-800 dark:text-slate-200" id="calc-display">0</div>
+            <button class="clear col-span-1 py-3 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-semibold border border-red-200 dark:border-red-800 hover:bg-red-100 transition" onclick="calcClear()">C</button>
+            <button class="operator col-span-1 py-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold border border-blue-200 dark:border-blue-800 hover:bg-blue-100 transition" onclick="calcOperator('/')">÷</button>
+            <button class="operator col-span-1 py-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold border border-blue-200 dark:border-blue-800 hover:bg-blue-100 transition" onclick="calcOperator('*')">×</button>
+            <button onclick="calcInput('7')" class="py-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition font-semibold">7</button>
+            <button onclick="calcInput('8')" class="py-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition font-semibold">8</button>
+            <button onclick="calcInput('9')" class="py-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition font-semibold">9</button>
+            <button class="operator py-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold border border-blue-200 dark:border-blue-800 hover:bg-blue-100 transition" onclick="calcOperator('-')">−</button>
+            <button onclick="calcInput('4')" class="py-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition font-semibold">4</button>
+            <button onclick="calcInput('5')" class="py-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition font-semibold">5</button>
+            <button onclick="calcInput('6')" class="py-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition font-semibold">6</button>
+            <button class="operator py-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold border border-blue-200 dark:border-blue-800 hover:bg-blue-100 transition" onclick="calcOperator('+')">+</button>
+            <button onclick="calcInput('1')" class="py-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition font-semibold">1</button>
+            <button onclick="calcInput('2')" class="py-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition font-semibold">2</button>
+            <button onclick="calcInput('3')" class="py-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition font-semibold">3</button>
+            <button class="equals col-span-2 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition shadow-lg shadow-blue-500/30" onclick="calcEquals()">=</button>
+            <button onclick="calcInput('0')" class="py-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition font-semibold">0</button>
+            <button onclick="calcInput('.')" class="py-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition font-semibold">.</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Connectivity Bar -->
+      <div class="connect-bar flex flex-wrap items-center gap-3 px-5 py-2.5 bg-blue-50 dark:bg-slate-800/50 rounded-full border border-blue-100 dark:border-slate-700 mb-4 no-print">
+        <span class="badge active-5g flex items-center gap-2 px-4 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-300 dark:border-green-700 text-sm font-semibold"><i class="fas fa-wifi"></i> 5G Active</span>
+        <span class="badge flex items-center gap-2 px-4 py-1 rounded-full bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600 text-sm font-semibold" id="status-bt"><i class="fab fa-bluetooth-b"></i> Bluetooth Off</span>
+        <span class="badge sim-mtn flex items-center gap-2 px-4 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-700 text-sm font-semibold" id="status-sim"><i class="fas fa-sim-card"></i> SIM: MTN</span>
+        <span class="badge flex items-center gap-2 px-4 py-1 rounded-full bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600 text-sm font-semibold"><i class="fas fa-signal"></i> Mobile Data</span>
+        <span class="badge google-sync flex items-center gap-2 px-4 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-700 text-sm font-semibold" id="status-google"><i class="fab fa-google"></i> Google Sync</span>
+        <span class="badge whatsapp-connected flex items-center gap-2 px-4 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-300 dark:border-green-700 text-sm font-semibold" id="status-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</span>
+        <button id="toggle-bt-btn" class="px-4 py-1 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-sm font-semibold transition">Toggle BT</button>
+        <button id="sim-mtn-btn" class="px-4 py-1 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-sm font-semibold transition">📱 MTN SIM</button>
+        <button id="wifi-toggle-btn" class="px-4 py-1 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-sm font-semibold transition"><i class="fas fa-wifi"></i> WiFi</button>
+        <button id="google-sync-btn" class="px-4 py-1 rounded-full bg-amber-200 dark:bg-amber-800/50 hover:bg-amber-300 dark:hover:bg-amber-700 text-amber-800 dark:text-amber-200 text-sm font-semibold transition"><i class="fab fa-google"></i> Sync</button>
+        <button id="whatsapp-connect-btn" class="px-4 py-1 rounded-full bg-green-200 dark:bg-green-800/50 hover:bg-green-300 dark:hover:bg-green-700 text-green-800 dark:text-green-200 text-sm font-semibold transition"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid flex flex-wrap gap-3 px-6 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-full border border-slate-200 dark:border-slate-700 mb-5 no-print">
+        <div class="stat-item bg-white dark:bg-slate-700 px-5 py-1 rounded-full border border-slate-200 dark:border-slate-600 text-sm"><span id="total-persons" class="font-bold text-blue-600 dark:text-blue-400">0</span> Persons</div>
+        <div class="stat-item bg-white dark:bg-slate-700 px-5 py-1 rounded-full border border-slate-200 dark:border-slate-600 text-sm"><span id="total-images" class="font-bold text-blue-600 dark:text-blue-400">0</span> Images</div>
+        <div class="stat-item bg-white dark:bg-slate-700 px-5 py-1 rounded-full border border-slate-200 dark:border-slate-600 text-sm"><span id="total-messages" class="font-bold text-blue-600 dark:text-blue-400">0</span> Messages</div>
+        <div class="stat-item bg-white dark:bg-slate-700 px-5 py-1 rounded-full border border-slate-200 dark:border-slate-600 text-sm"><span id="due-today" class="font-bold text-blue-600 dark:text-blue-400">0</span> Due today</div>
+        <div class="stat-item bg-white dark:bg-slate-700 px-5 py-1 rounded-full border border-slate-200 dark:border-slate-600 text-sm">Active: <span id="active-user" class="font-bold text-blue-600 dark:text-blue-400">—</span></div>
+      </div>
+
+      <!-- Network Panel -->
+      <div class="network-panel grid grid-cols-1 md:grid-cols-2 gap-5 mb-5 no-print">
+        <div class="network-card bg-slate-50 dark:bg-slate-800/50 p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
+          <h3 class="flex items-center gap-2 text-lg font-semibold text-slate-800 dark:text-slate-200"><i class="fas fa-phone-alt text-blue-500"></i> My Numbers (MTN Rwanda)</h3>
+          <div class="phone-display bg-white dark:bg-slate-800 px-4 py-2.5 rounded-full border border-slate-200 dark:border-slate-700 font-semibold flex justify-between items-center mb-2.5"><i class="fas fa-sim-card text-blue-500"></i> +250 739390715 <span class="text-xs bg-slate-100 dark:bg-slate-700 px-3 py-0.5 rounded-full">Primary</span></div>
+          <div class="phone-display bg-white dark:bg-slate-800 px-4 py-2.5 rounded-full border border-slate-200 dark:border-slate-700 font-semibold flex justify-between items-center mb-2.5"><i class="fas fa-phone text-blue-500"></i> +250 735281339 <span class="text-xs bg-slate-100 dark:bg-slate-700 px-3 py-0.5 rounded-full">Secondary</span></div>
+          <div class="flex flex-wrap gap-2 my-3">
+            <button onclick="simulateIncomingSMS('+250 739390715', 'MTN: Your balance is 5,000 RWF')" class="px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition"><i class="fas fa-sms"></i> Test SMS</button>
+            <button onclick="simulateIncomingSMS('+250 735281339', 'Hello from MTN Rwanda!')" class="px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition"><i class="fas fa-envelope"></i> Test Msg</button>
+            <button onclick="connectWhatsApp()" class="px-4 py-2 rounded-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold transition"><i class="fab fa-whatsapp"></i> Connect WA</button>
+          </div>
+          <div class="sms-box bg-white dark:bg-slate-800 rounded-2xl p-4 max-h-[220px] overflow-y-auto border border-slate-200 dark:border-slate-700" id="sms-inbox">
+            <div class="sms-item flex gap-2 py-1.5 border-b border-slate-100 dark:border-slate-700 text-sm"><span class="time text-slate-400 dark:text-slate-500 text-xs min-w-[60px]">Now</span><span class="sender font-semibold text-blue-600 dark:text-blue-400 min-w-[80px]">System</span><span class="msg text-slate-700 dark:text-slate-300 flex-1">📱 MTN SIM ready. Numbers registered.</span></div>
+          </div>
+        </div>
+        <div class="network-card bg-slate-50 dark:bg-slate-800/50 p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
+          <h3 class="flex items-center gap-2 text-lg font-semibold text-slate-800 dark:text-slate-200"><i class="fas fa-wifi text-blue-500"></i> Network Control</h3>
+          <div class="wifi-toggle flex flex-wrap gap-2 items-center mt-1">
+            <button id="wifi-on-btn" class="on px-4 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold transition"><i class="fas fa-wifi"></i> ON</button>
+            <button id="wifi-off-btn" class="px-4 py-1.5 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-sm font-semibold transition"><i class="fas fa-wifi"></i> OFF</button>
+            <span id="wifi-status" class="text-sm font-semibold text-green-600 dark:text-green-400">Connected</span>
+          </div>
+          <div class="mt-3 space-y-1 text-sm text-slate-600 dark:text-slate-400">
+            <p><i class="fas fa-signal"></i> 5G Network: <strong class="text-slate-800 dark:text-slate-200">Active</strong></p>
+            <p><i class="fas fa-sim-card"></i> Carrier: <strong class="text-slate-800 dark:text-slate-200">MTN Rwanda</strong></p>
+            <p><i class="fas fa-bluetooth-b"></i> Bluetooth: <strong id="bt-status-text" class="text-slate-400 dark:text-slate-500">Off</strong></p>
+            <p><i class="fab fa-whatsapp"></i> WhatsApp: <strong id="wa-status-text" class="text-green-600 dark:text-green-400">Connected</strong></p>
+          </div>
+          <button id="refresh-network-btn" class="mt-3 px-5 py-2 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold transition"><i class="fas fa-sync"></i> Refresh Network</button>
+        </div>
+      </div>
+
+      <!-- DeepSeek AI Chat -->
+      <div class="network-card bg-slate-50 dark:bg-slate-800/50 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 mb-5">
+        <h3 class="flex items-center gap-2 text-lg font-semibold text-slate-800 dark:text-slate-200 flex-wrap">
+          <i class="fas fa-robot text-blue-500"></i> DeepSeek AI Chat
+          <span class="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-0.5 rounded-full">v2.0</span>
+          <a href="https://chat.deepseek.com/a/chat/s/897bd014-0012-4c48-a79e-6d1f927ed70b" target="_blank" class="text-xs bg-slate-800 hover:bg-slate-700 text-white px-3 py-1 rounded-full transition ml-auto flex items-center gap-1.5 no-print">
+            <i class="fas fa-external-link-alt"></i> DeepSeek AI
+          </a>
+        </h3>
+        <div class="chat-container bg-white dark:bg-slate-800 rounded-2xl p-4 max-h-[300px] overflow-y-auto border border-slate-200 dark:border-slate-700 mt-2" id="chat-container">
+          <div class="chat-message bot bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 px-4 py-2.5 rounded-2xl rounded-bl-none max-w-[85%] mb-2 text-sm">
+            👋 Hello! I'm DeepSeek AI. Ask me about MTN, SMS, contacts, or anything else!
+            <span class="time block text-xs text-slate-400 dark:text-slate-500 mt-1">Just now</span>
+          </div>
+        </div>
+        <div class="chat-input-group flex gap-2 mt-3">
+          <input type="text" id="chatInput" placeholder="Ask DeepSeek AI..." class="flex-1 px-4 py-2 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm" onkeypress="if(event.key==='Enter') sendChatMessage()" />
+          <button onclick="sendChatMessage()" class="px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition"><i class="fas fa-paper-plane"></i> Send</button>
+          <button onclick="clearChat()" class="px-4 py-2 rounded-full bg-slate-500 hover:bg-slate-600 text-white text-sm font-semibold transition"><i class="fas fa-trash"></i></button>
+          <a href="https://chat.deepseek.com/a/chat/s/897bd014-0012-4c48-a79e-6d1f927ed70b" target="_blank" class="px-4 py-2 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold transition flex items-center gap-2 no-print">
+            <i class="fas fa-external-link-alt"></i> Open
+          </a>
+        </div>
+      </div>
+
+      <!-- WhatsApp Chat Buttons -->
+      <div class="flex flex-wrap gap-3 items-center px-4 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-full mb-4 no-print">
+        <span class="font-semibold text-slate-700 dark:text-slate-300"><i class="fas fa-comment"></i> Chat with me:</span>
+        <a href="https://wa.me/250739390715?text=Hello%20from%20ELAF%20MTN%20SMS%20Hub" target="_blank" class="whatsapp-direct px-5 py-1.5 rounded-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold transition flex items-center gap-2"><i class="fab fa-whatsapp"></i> +250 739390715</a>
+        <a href="https://wa.me/250735281339?text=Hello%20from%20ELAF%20MTN%20SMS%20Hub" target="_blank" class="whatsapp-direct px-5 py-1.5 rounded-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold transition flex items-center gap-2"><i class="fab fa-whatsapp"></i> +250 735281339</a>
+      </div>
+
+      <!-- Info Banner -->
+      <div class="info-banner flex flex-wrap items-center gap-3 px-5 py-3 bg-green-50 dark:bg-green-900/20 rounded-full border border-green-200 dark:border-green-800 mb-4 no-print">
+        <i class="fab fa-whatsapp whatsapp-icon text-2xl text-green-600 dark:text-green-400"></i>
+        <span class="text-sm text-green-800 dark:text-green-300"><strong>MTN SMS + 5G:</strong> Your numbers +250 739390715, +250 735281339</span>
+        <span class="learn-more text-blue-600 dark:text-blue-400 text-sm cursor-pointer underline" onclick="window.showToast('📱 SMS will appear in inbox', 'info')">Learn more →</span>
+        <span class="wifi-badge px-3 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs border border-green-200 dark:border-green-800"><i class="fas fa-wifi"></i> WiFi</span>
+        <span class="wifi-badge px-3 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs border border-green-200 dark:border-green-800"><i class="fas fa-sim-card"></i> MTN</span>
+        <span class="wifi-badge px-3 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs border border-green-200 dark:border-green-800"><i class="fab fa-whatsapp"></i> WhatsApp</span>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- CONTACTS SECTION -->
+    <!-- ============================================================ -->
+    <div id="section-contacts" class="section hidden animate-fade-in-up">
+      <div class="flex flex-wrap justify-between items-center gap-3 mb-5">
+        <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100"><i class="fas fa-users text-blue-500"></i> Contacts Directory <span id="contacts-count-label" class="text-sm font-normal text-slate-500 dark:text-slate-400"></span></h2>
+        <div class="flex gap-2 no-print">
+          <button onclick="printContacts()" class="px-5 py-2 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold transition"><i class="fas fa-print"></i> Print</button>
+          <button onclick="switchSection('home')" class="px-5 py-2 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-sm font-semibold transition"><i class="fas fa-arrow-left"></i> Back to Home</button>
+        </div>
+      </div>
+
+      <div class="form-grid grid grid-cols-1 md:grid-cols-2 gap-5 mb-6 no-print">
+        <div class="form-card bg-slate-50 dark:bg-slate-800/50 p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
+          <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">📝 Register Person · ID & Image</h3>
+          <form id="person-form" class="flex flex-col gap-3">
+            <input type="text" id="person-name" placeholder="Full Name" class="w-full px-4 py-2.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" required />
+            <input type="email" id="person-email" placeholder="Email" class="w-full px-4 py-2.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+            <input type="text" id="person-phone" placeholder="Phone (for WhatsApp)" class="w-full px-4 py-2.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+            <input type="text" id="person-id" placeholder="ID / Passport (optional)" class="w-full px-4 py-2.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+            <input type="file" id="person-image" accept="image/*" class="w-full px-4 py-2 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm" />
+            <div class="inline-group flex flex-wrap gap-3 items-center">
+              <label class="flex items-center gap-2 px-4 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm cursor-pointer"><input type="checkbox" id="use-avatar" /> Use avatar</label>
+            </div>
+            <button type="submit" class="px-6 py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold transition"><i class="fas fa-save"></i> Save Person</button>
+          </form>
+        </div>
+        <div class="form-card bg-slate-50 dark:bg-slate-800/50 p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
+          <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">📄 CV & Languages</h3>
+          <input type="file" id="cv-upload" accept=".pdf,.doc,.docx" class="w-full px-4 py-2 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm mb-3" />
+          <input type="text" id="languages-input" placeholder="e.g. English, Spanish, French" class="w-full px-4 py-2.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition mb-3" />
+          <button id="add-cv-lang-btn" class="w-full px-6 py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold transition"><i class="fas fa-plus"></i> Attach CV & Languages</button>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Attach to the last added person.</p>
+          <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 flex flex-wrap gap-2">
+            <button id="edit-image-btn" type="button" class="px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-sm font-semibold transition hover:bg-blue-100"><i class="fas fa-edit"></i> Edit Last Image</button>
+            <button id="edit-id-btn" type="button" class="px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-sm font-semibold transition hover:bg-blue-100"><i class="fas fa-id-card"></i> Edit Last ID</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="contacts-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <!-- Sample contact will be injected here by JS -->
+        <div class="contact-card bg-white dark:bg-slate-800 rounded-2xl p-4 text-center border border-slate-200 dark:border-slate-700 shadow-sm transition hover:shadow-md" id="sample-contact">
+          <span class="id-badge bg-blue-600 text-white text-xs px-3 py-0.5 rounded-full inline-block mb-2"><i class="fas fa-id-card"></i> 6478653</span>
+          <img src="https://ui-avatars.com/api/?name=Abdu+Salim&size=80&background=2563eb&color=fff" alt="Avatar" class="w-20 h-20 rounded-full mx-auto mb-2 border-2 border-slate-200 dark:border-slate-600" />
+          <h3 class="font-semibold text-slate-800 dark:text-slate-200">Abdu Salim</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400">salimabdu759@gmail.com</p>
+          <p class="text-xs text-slate-400 dark:text-slate-500">🗣️ Not Specified</p>
+          <div class="flex flex-wrap justify-center gap-1 mt-2">
+            <a href="https://wa.me/250739390715?text=Hello%20Abdu%20Salim" target="_blank" class="whatsapp-btn px-3 py-1 rounded-full bg-green-600 hover:bg-green-700 text-white text-xs font-semibold transition"><i class="fab fa-whatsapp"></i> Chat</a>
+            <button class="chat-btn px-3 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold transition" onclick="chatWithContact(0)"><i class="fas fa-comment"></i> Chat with me</button>
+          </div>
+          <div class="qr-container w-20 h-20 mx-auto my-2 flex justify-center items-center bg-white dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-600" id="sample-qr"></div>
+          <button class="delete-btn px-4 py-1 rounded-full bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs font-semibold transition hover:bg-red-100" onclick="removeSampleContact()"><i class="fas fa-trash"></i> Remove</button>
+        </div>
+        <p id="empty-message" class="col-span-full text-center py-16 text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700 hidden">📭 ✨ No contacts yet — add your first person.</p>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SMS SECTION -->
+    <!-- ============================================================ -->
+    <div id="section-sms" class="section hidden animate-fade-in-up">
+      <div class="flex flex-wrap justify-between items-center gap-3 mb-5">
+        <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100"><i class="fas fa-sms text-blue-500"></i> SMS Inbox <span id="sms-count-label" class="text-sm font-normal text-slate-500 dark:text-slate-400"></span></h2>
+        <div class="flex gap-2 no-print">
+          <button onclick="printSms()" class="px-5 py-2 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold transition"><i class="fas fa-print"></i> Print</button>
+          <button onclick="switchSection('home')" class="px-5 py-2 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-sm font-semibold transition"><i class="fas fa-arrow-left"></i> Back to Home</button>
+        </div>
+      </div>
+
+      <div class="network-card bg-slate-50 dark:bg-slate-800/50 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 max-w-[900px] mx-auto">
+        <div class="sms-toolbar flex flex-wrap gap-2 mb-3 no-print">
+          <button onclick="clearAllMessages()" class="px-4 py-1.5 rounded-full bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-semibold border border-red-200 dark:border-red-800 hover:bg-red-100 transition"><i class="fas fa-trash-alt"></i> Delete All</button>
+          <button onclick="syncInbox()" class="px-4 py-1.5 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-sm font-semibold transition"><i class="fas fa-sync"></i> Sync</button>
+          <button onclick="simulateIncomingSMS('+250 739390715', 'Test message from primary')" class="px-4 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition"><i class="fas fa-sms"></i> Test SMS</button>
+          <button onclick="simulateIncomingSMS('+250 735281339', 'Test from secondary number')" class="px-4 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition"><i class="fas fa-envelope"></i> Test Msg</button>
+          <button onclick="translateAllMessages()" class="px-4 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition"><i class="fas fa-language"></i> Translate All</button>
+          <button onclick="googleSyncMessages()" class="px-4 py-1.5 rounded-full bg-amber-200 dark:bg-amber-800/50 hover:bg-amber-300 dark:hover:bg-amber-700 text-amber-800 dark:text-amber-200 text-sm font-semibold transition"><i class="fab fa-google"></i> Google Sync</button>
+          <button onclick="connectWhatsApp()" class="px-4 py-1.5 rounded-full bg-green-200 dark:bg-green-800/50 hover:bg-green-300 dark:hover:bg-green-700 text-green-800 dark:text-green-200 text-sm font-semibold transition"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+          <button onclick="printSms()" class="px-4 py-1.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 text-sm font-semibold border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-200 transition"><i class="fas fa-print"></i> Print</button>
+          <a href="https://chat.deepseek.com/a/chat/s/897bd014-0012-4c48-a79e-6d1f927ed70b" target="_blank" class="px-4 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold transition flex items-center gap-2 no-print">
+            <i class="fas fa-external-link-alt"></i> DeepSeek AI
+          </a>
+          <span id="sms-timestamp" class="text-xs text-slate-400 dark:text-slate-500 ml-auto">Updated: now</span>
+        </div>
+
+        <div class="flex flex-wrap gap-1.5 mb-3 items-center no-print">
+          <span class="text-sm font-semibold text-slate-700 dark:text-slate-300"><i class="fas fa-language"></i> Translate to:</span>
+          <div class="language-selector flex flex-wrap gap-1" id="lang-selector">
+            <button data-lang="en" class="active-lang px-3 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-300">🇬🇧 EN</button>
+            <button data-lang="fr" class="px-3 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-300">🇫🇷 FR</button>
+            <button data-lang="es" class="px-3 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-300">🇪🇸 ES</button>
+            <button data-lang="ar" class="px-3 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-300">🇸🇦 AR</button>
+            <button data-lang="zh" class="px-3 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-300">🇨🇳 ZH</button>
+            <button data-lang="hi" class="px-3 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-300">🇮🇳 HI</button>
+            <button data-lang="pt" class="px-3 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-300">🇵🇹 PT</button>
+            <button data-lang="ru" class="px-3 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-300">🇷🇺 RU</button>
+            <button data-lang="de" class="px-3 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-300">🇩🇪 DE</button>
+            <button data-lang="it" class="px-3 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-300">🇮🇹 IT</button>
+            <button data-lang="ja" class="px-3 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-300">🇯🇵 JA</button>
+            <button data-lang="ko" class="px-3 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-300">🇰🇷 KO</button>
+            <button data-lang="tr" class="px-3 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-300">🇹🇷 TR</button>
+            <button data-lang="ur" class="px-3 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-300">🇵🇰 UR</button>
+            <button data-lang="sw" class="px-3 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-300">🇰🇪 SW</button>
+          </div>
+        </div>
+
+        <div class="sms-box bg-white dark:bg-slate-800 rounded-2xl p-4 max-h-[500px] overflow-y-auto border border-slate-200 dark:border-slate-700" id="sms-inbox-full">
+          <div class="sms-item flex gap-2 py-1.5 border-b border-slate-100 dark:border-slate-700 text-sm"><span class="time text-slate-400 dark:text-slate-500 text-xs min-w-[60px]">Now</span><span class="sender font-semibold text-blue-600 dark:text-blue-400 min-w-[80px]">System</span><span class="msg text-slate-700 dark:text-slate-300 flex-1">📱 MTN SIM ready. Numbers registered.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- QR SECTION -->
+    <!-- ============================================================ -->
+    <div id="section-qr" class="section hidden animate-fade-in-up">
+      <div class="flex flex-wrap justify-between items-center gap-3 mb-5">
+        <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100"><i class="fas fa-qrcode text-blue-500"></i> QR Code Generator</h2>
+        <button onclick="switchSection('home')" class="px-5 py-2 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-sm font-semibold transition no-print"><i class="fas fa-arrow-left"></i> Back to Home</button>
+      </div>
+      <div class="qr-code-section bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-wrap items-center gap-4 no-print">
+        <i class="fas fa-qrcode text-5xl text-blue-500"></i>
+        <input type="text" id="qr-input" placeholder="Enter text, URL, or P.CODE" value="https://wa.me/+250739390715?text=Hello%20from%20ELAF" class="flex-1 min-w-[150px] px-4 py-2.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+        <button id="generate-qr-btn" class="px-5 py-2.5 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold transition"><i class="fas fa-qrcode"></i> Generate</button>
+        <button id="wifi-qr-btn" class="px-5 py-2.5 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold transition"><i class="fas fa-wifi"></i> WiFi QR</button>
+        <button id="mtn-qr-btn" class="px-5 py-2.5 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold transition"><i class="fas fa-sim-card"></i> MTN SIM</button>
+        <button id="bt-qr-btn" class="px-5 py-2.5 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold transition"><i class="fab fa-bluetooth-b"></i> BT Pair</button>
+        <button id="sms-qr-btn" class="px-5 py-2.5 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold transition"><i class="fas fa-sms"></i> SMS</button>
+        <div class="qr-display flex items-center gap-4 bg-white dark:bg-slate-800 px-4 py-2 rounded-full border border-slate-200 dark:border-slate-700 flex-1 min-w-[200px] justify-center">
+          <div id="qrcode-container" class="w-20 h-20 flex items-center justify-center"></div>
+          <div class="qr-actions flex flex-col gap-1">
+            <button id="download-qr-btn" class="px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-semibold hover:bg-blue-100 transition"><i class="fas fa-download"></i> Download</button>
+            <button id="whatsapp-qr-btn" class="px-3 py-1 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 text-xs font-semibold hover:bg-green-100 transition"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SETTINGS SECTION -->
+    <!-- ============================================================ -->
+    <div id="section-settings" class="section hidden animate-fade-in-up">
+      <div class="flex flex-wrap justify-between items-center gap-3 mb-5">
+        <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100"><i class="fas fa-cog text-blue-500"></i> Settings</h2>
+        <button onclick="switchSection('home')" class="px-5 py-2 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-sm font-semibold transition no-print"><i class="fas fa-arrow-left"></i> Back to Home</button>
+      </div>
+      <div class="form-grid grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="form-card bg-slate-50 dark:bg-slate-800/50 p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
+          <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">🔐 Account</h3>
+          <p class="text-slate-600 dark:text-slate-400 mb-2">Logged in as: <strong id="settings-username" class="text-slate-800 dark:text-slate-200">User</strong></p>
+          <button onclick="showToast('Profile settings coming soon!', 'info')" class="w-full px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition mb-2"><i class="fas fa-user-edit"></i> Edit Profile</button>
+          <button onclick="showToast('Security settings coming soon!', 'info')" class="w-full px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition"><i class="fas fa-shield-alt"></i> Security</button>
+        </div>
+        <div class="form-card bg-slate-50 dark:bg-slate-800/50 p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
+          <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">📱 Network</h3>
+          <div class="flex flex-col gap-2">
+            <button onclick="showToast('5G Network: Active', 'success')" class="w-full px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition"><i class="fas fa-wifi"></i> Check 5G Status</button>
+            <button onclick="simMtnBtn.click()" class="w-full px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition"><i class="fas fa-sim-card"></i> Set MTN SIM</button>
+            <button onclick="toggleBtBtn.click()" class="w-full px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition"><i class="fab fa-bluetooth-b"></i> Toggle Bluetooth</button>
+            <button onclick="connectWhatsApp()" class="w-full px-4 py-2 rounded-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold transition"><i class="fab fa-whatsapp"></i> Connect WhatsApp</button>
+            <button onclick="showToast('Language: English', 'info')" class="w-full px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition"><i class="fas fa-language"></i> Language Settings</button>
+          </div>
+        </div>
+        <div class="form-card bg-slate-50 dark:bg-slate-800/50 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 col-span-1 md:col-span-2">
+          <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">📊 Data Management</h3>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="exportContacts()" class="px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition"><i class="fas fa-file-export"></i> Export Contacts</button>
+            <button onclick="if(confirm('Delete all contacts?')){contacts=[]; saveContacts(); updateDashboardUI(); showToast('All contacts cleared!', 'info');}" class="px-4 py-2 rounded-full bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition"><i class="fas fa-trash-alt"></i> Clear All Data</button>
+            <button onclick="showToast('Data refreshed!', 'success')" class="px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition"><i class="fas fa-sync"></i> Refresh</button>
+            <button onclick="clearAllMessages()" class="px-4 py-2 rounded-full bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition"><i class="fas fa-trash"></i> Clear SMS</button>
+            <button onclick="googleSyncMessages()" class="px-4 py-2 rounded-full bg-amber-200 dark:bg-amber-800/50 hover:bg-amber-300 dark:hover:bg-amber-700 text-amber-800 dark:text-amber-200 text-sm font-semibold transition"><i class="fab fa-google"></i> Google Sync</button>
+            <button onclick="printContacts()" class="px-4 py-2 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold transition"><i class="fas fa-print"></i> Print Contacts</button>
+            <button onclick="printSms()" class="px-4 py-2 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold transition"><i class="fas fa-print"></i> Print SMS</button>
+            <a href="https://chat.deepseek.com/a/chat/s/897bd014-0012-4c48-a79e-6d1f927ed70b" target="_blank" class="px-4 py-2 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold transition flex items-center gap-2 no-print">
+              <i class="fas fa-external-link-alt"></i> DeepSeek AI
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+</div>
+
+<!-- ============================================================ -->
+<!-- TOAST NOTIFICATION -->
+<!-- ============================================================ -->
+<div id="toast" class="fixed bottom-8 right-8 bg-slate-800 text-white px-6 py-3 rounded-full shadow-2xl transform translate-y-24 opacity-0 transition-all duration-500 z-[999] max-w-[90vw] text-sm font-medium"></div>
+
+<!-- ============================================================ -->
+<!-- EDIT MODAL -->
+<!-- ============================================================ -->
+<div class="modal-overlay fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-[1000]" id="edit-modal">
+  <div class="modal-box bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-md w-[90%] shadow-2xl animate-slide-down">
+    <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-4"><i class="fas fa-edit text-blue-500"></i> Edit Message</h3>
+    <textarea id="edit-msg-textarea" placeholder="Edit your message..." class="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition min-h-[80px] resize-y font-sans"></textarea>
+    <div class="flex gap-3 mt-4 justify-end">
+      <button class="cancel px-5 py-2 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold transition" onclick="closeEditModal()">Cancel</button>
+      <button class="save px-5 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold transition" onclick="saveEditMessage()"><i class="fas fa-save"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    "use strict";
+
+    // ---------- STATE ----------
+    let currentUser = null;
+    let contacts = [];
+    let qrCodeInstance = null;
+    let currentQrText = '';
+    let clockInterval = null;
+    let bluetoothOn = false;
+    let wifiOn = true;
+    let simProvider = 'MTN';
+    let currentTranslateLang = 'en';
+    let editingIndex = -1;
+    let isDarkMode = false;
+    let sampleContactAdded = false;
+
+    const MY_NUMBERS = ['+250 739390715', '+250 735281339'];
+
+    let smsMessages = [];
+
+    function loadSmsFromStorage() {
+      const saved = localStorage.getItem('smsMessages');
+      if (saved) {
+        try { smsMessages = JSON.parse(saved); } catch (e) { smsMessages = []; }
+      }
+      if (smsMessages.length === 0) {
+        smsMessages = [{ time: 'Now', sender: 'System', msg: '📱 MTN SIM ready. Numbers registered.' }];
+        saveSmsToStorage();
+      }
+    }
+
+    function saveSmsToStorage() {
+      localStorage.setItem('smsMessages', JSON.stringify(smsMessages));
+    }
+
+    // ---------- DOM REFS ----------
+    const authContainer = document.getElementById('auth-container');
+    const dashboard = document.getElementById('dashboard');
+    const loginForm = document.getElementById('login-form');
+    const signupForm = document.getElementById('signup-form');
+    const tabLogin = document.getElementById('tab-login');
+    const tabSignup = document.getElementById('tab-signup');
+    const logoutBtn = document.getElementById('logout-btn');
+    const dashUsername = document.getElementById('dash-username');
+    const activeUserEl = document.getElementById('active-user');
+    const printBtn = document.getElementById('print-btn');
+    const clockDisplay = document.getElementById('clock-display');
+
+    const personForm = document.getElementById('person-form');
+    const contactsList = document.getElementById('contacts-list');
+    const totalPersonsEl = document.getElementById('total-persons');
+    const totalImagesEl = document.getElementById('total-images');
+    const totalMessagesEl = document.getElementById('total-messages');
+    const dueTodayEl = document.getElementById('due-today');
+
+    const cvUpload = document.getElementById('cv-upload');
+    const languagesInput = document.getElementById('languages-input');
+    const addCvLangBtn = document.getElementById('add-cv-lang-btn');
+
+    const qrInput = document.getElementById('qr-input');
+    const generateQrBtn = document.getElementById('generate-qr-btn');
+    const wifiQrBtn = document.getElementById('wifi-qr-btn');
+    const mtnQrBtn = document.getElementById('mtn-qr-btn');
+    const btQrBtn = document.getElementById('bt-qr-btn');
+    const smsQrBtn = document.getElementById('sms-qr-btn');
+    const downloadQrBtn = document.getElementById('download-qr-btn');
+    const whatsappQrBtn = document.getElementById('whatsapp-qr-btn');
+    const qrContainer = document.getElementById('qrcode-container');
+    const toast = document.getElementById('toast');
+
+    const statusBt = document.getElementById('status-bt');
+    const statusSim = document.getElementById('status-sim');
+    const toggleBtBtn = document.getElementById('toggle-bt-btn');
+    const simMtnBtn = document.getElementById('sim-mtn-btn');
+    const wifiOnBtn = document.getElementById('wifi-on-btn');
+    const wifiOffBtn = document.getElementById('wifi-off-btn');
+    const wifiStatus = document.getElementById('wifi-status');
+    const btStatusText = document.getElementById('bt-status-text');
+    const refreshNetworkBtn = document.getElementById('refresh-network-btn');
+    const smsInbox = document.getElementById('sms-inbox');
+    const smsInboxFull = document.getElementById('sms-inbox-full');
+    const editImageBtn = document.getElementById('edit-image-btn');
+    const editIdBtn = document.getElementById('edit-id-btn');
+    const contactBadge = document.getElementById('contact-badge');
+    const smsBadge = document.getElementById('sms-badge');
+    const settingsUsername = document.getElementById('settings-username');
+    const smsCountLabel = document.getElementById('sms-count-label');
+    const smsTimestamp = document.getElementById('sms-timestamp');
+    const googleSyncBtn = document.getElementById('google-sync-btn');
+    const whatsappConnectBtn = document.getElementById('whatsapp-connect-btn');
+    const waStatusText = document.getElementById('wa-status-text');
+
+    const fingerprintBtn = document.getElementById('fingerprint-btn');
+    const fingerprintSignup = document.getElementById('fingerprint-btn-signup');
+
+    const editModal = document.getElementById('edit-modal');
+    const editTextarea = document.getElementById('edit-msg-textarea');
+
+    const mainNavbar = document.querySelector('.nav-bar');
+    const colorToggleBtn = document.getElementById('colorToggleBtn');
+    const colorPickerPopup = document.getElementById('colorPickerPopup');
+
+    const brightnessSlider = document.getElementById('brightnessSlider');
+    const exposureSlider = document.getElementById('exposureSlider');
+    const contrastSlider = document.getElementById('contrastSlider');
+    const highlightsSlider = document.getElementById('highlightsSlider');
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const resetThemeBtn = document.getElementById('resetThemeBtn');
+
+    const globalSearch = document.getElementById('globalSearch');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    const chatInput = document.getElementById('chatInput');
+    const chatContainer = document.getElementById('chat-container');
+
+    // ---------- TOAST ----------
+    function showToast(msg, type = 'info') {
+      toast.textContent = msg;
+      toast.className = 'fixed bottom-8 right-8 bg-slate-800 text-white px-6 py-3 rounded-full shadow-2xl z-[999] max-w-[90vw] text-sm font-medium transition-all duration-500';
+      if (type === 'success') toast.classList.add('bg-green-600');
+      else if (type === 'error') toast.classList.add('bg-red-600');
+      else if (type === 'info') toast.classList.add('bg-blue-600');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      clearTimeout(toast._timeout);
+      toast._timeout = setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-24', 'opacity-0');
+      }, 4000);
+    }
+    window.showToast = showToast;
+
+    // ---------- CLOCK ----------
+    function updateClock() {
+      const now = new Date();
+      clockDisplay.textContent = '⏰ ' + now.toLocaleTimeString('en-US', { hour12: false });
+    }
+
+    // ---------- HELPERS ----------
+    function escapeHtml(text) {
+      if (!text) return '';
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+      return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+    }
+
+    function getLastContact() {
+      if (contacts.length === 0) {
+        showToast('No contacts available. Please add a person first.', 'error');
+        return null;
+      }
+      return contacts[contacts.length - 1];
+    }
+
+    function saveContacts() {
+      localStorage.setItem('contacts', JSON.stringify(contacts));
+    }
+
+    function loadContactsFromStorage() {
+      const saved = localStorage.getItem('contacts');
+      if (saved) {
+        try { contacts = JSON.parse(saved); } catch (e) { contacts = []; }
+      }
+      const hasSample = contacts.some(c => c.personId === '6478653' && c.name === 'Abdu Salim');
+      if (!hasSample && contacts.length === 0) {
+        const sampleContact = {
+          name: 'Abdu Salim',
+          email: 'salimabdu759@gmail.com',
+          phone: '+250 739390715',
+          personId: '6478653',
+          image: 'https://ui-avatars.com/api/?name=Abdu+Salim&size=80&background=2563eb&color=fff',
+          isDefaultAvatar: true,
+          languages: 'Not Specified',
+          cvName: ''
+        };
+        contacts.push(sampleContact);
+        sampleContactAdded = true;
+        saveContacts();
+      } else if (hasSample) {
+        sampleContactAdded = true;
+      }
+      updateDashboardUI();
+    }
+
+    // ---------- PRINT FUNCTIONS ----------
+    function printContacts() {
+      window.print();
+      showToast('🖨️ Printing contacts...', 'info');
+    }
+    window.printContacts = printContacts;
+
+    function printSms() {
+      window.print();
+      showToast('🖨️ Printing SMS inbox...', 'info');
+    }
+    window.printSms = printSms;
+
+    // ---------- SAMPLE CONTACT ----------
+    function removeSampleContact() {
+      const idx = contacts.findIndex(c => c.personId === '6478653' && c.name === 'Abdu Salim');
+      if (idx !== -1) {
+        contacts.splice(idx, 1);
+        sampleContactAdded = false;
+        saveContacts();
+        updateDashboardUI();
+        showToast('Sample contact removed', 'info');
+      }
+    }
+    window.removeSampleContact = removeSampleContact;
+
+    // ---------- WHATSAPP CONNECT ----------
+    function connectWhatsApp() {
+      waStatusText.textContent = 'Connecting...';
+      waStatusText.className = 'text-amber-500';
+      showToast('📱 Connecting to WhatsApp...', 'info');
+      setTimeout(() => {
+        waStatusText.textContent = 'Connected ✓';
+        waStatusText.className = 'text-green-600 dark:text-green-400';
+        document.getElementById('status-whatsapp').innerHTML = '<i class="fab fa-whatsapp"></i> WhatsApp ✓';
+        showToast('✅ WhatsApp connected successfully!', 'success');
+        simulateIncomingSMS('WhatsApp', '📱 WhatsApp connection established with +250 739390715');
+      }, 1500);
+    }
+    window.connectWhatsApp = connectWhatsApp;
+
+    // ---------- EXPORT CONTACTS ----------
+    function exportContacts() {
+      if (contacts.length === 0) {
+        showToast('No contacts to export', 'error');
+        return;
+      }
+      const data = JSON.stringify(contacts, null, 2);
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `elaf_contacts_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('📤 Contacts exported successfully!', 'success');
+    }
+    window.exportContacts = exportContacts;
+
+    // ---------- SEARCH ----------
+    function performSearch() {
+      const query = globalSearch.value.trim();
+      if (query.length > 0) {
+        clearSearchBtn.classList.add('!block');
+        const filteredContacts = contacts.filter(c =>
+          c.name.toLowerCase().includes(query.toLowerCase()) ||
+          (c.email && c.email.toLowerCase().includes(query.toLowerCase())) ||
+          (c.phone && c.phone.includes(query))
+        );
+        const filteredMessages = smsMessages.filter(m =>
+          m.msg.toLowerCase().includes(query.toLowerCase()) ||
+          m.sender.toLowerCase().includes(query.toLowerCase())
+        );
+        if (filteredContacts.length > 0 || filteredMessages.length > 0) {
+          showToast(`Found ${filteredContacts.length} contacts and ${filteredMessages.length} messages`, 'info');
+        } else {
+          showToast('No results found. Try Google Search below.', 'info');
+        }
+        updateDashboardUI(query);
+      } else {
+        clearSearchBtn.classList.remove('!block');
+        updateDashboardUI();
+      }
+    }
+
+    globalSearch.addEventListener('input', performSearch);
+    globalSearch.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') performGoogleSearch();
+    });
+
+    clearSearchBtn.addEventListener('click', function() {
+      globalSearch.value = '';
+      clearSearchBtn.classList.remove('!block');
+      updateDashboardUI();
+      showToast('Search cleared', 'info');
+    });
+
+    function performGoogleSearch() {
+      const query = globalSearch.value.trim() || 'MTN SMS Hub ELAF';
+      window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+      showToast(`🔍 Searching Google for: ${query}`, 'info');
+    }
+    window.performGoogleSearch = performGoogleSearch;
+
+    function performWebSearch() {
+      const query = globalSearch.value.trim() || 'MTN Rwanda SMS services';
+      window.open(`https://duckduckgo.com/?q=${encodeURIComponent(query)}`, '_blank');
+      showToast(`🌐 Searching web for: ${query}`, 'info');
+    }
+    window.performWebSearch = performWebSearch;
+
+    // ---------- GOOGLE SYNC ----------
+    function googleSyncMessages() {
+      showToast('🔄 Syncing with Google Drive...', 'info');
+      setTimeout(() => {
+        const syncData = {
+          messages: smsMessages,
+          contacts: contacts,
+          timestamp: new Date().toISOString(),
+          user: currentUser
+        };
+        localStorage.setItem('googleSyncBackup', JSON.stringify(syncData));
+        document.getElementById('status-google').innerHTML = '<i class="fab fa-google"></i> Google Synced ✓';
+        showToast('✅ Google Sync complete! Data backed up.', 'success');
+        simulateIncomingSMS('Google Sync', '📤 All messages and contacts backed up to Google Drive');
+      }, 1500);
+    }
+    window.googleSyncMessages = googleSyncMessages;
+    if (googleSyncBtn) googleSyncBtn.addEventListener('click', googleSyncMessages);
+
+    // ---------- DEEPSEEK CHAT ----------
+    async function sendChatMessage() {
+      const message = chatInput.value.trim();
+      if (!message) return;
+
+      addChatMessage(message, 'user');
+      chatInput.value = '';
+      chatInput.disabled = true;
+      document.querySelector('.chat-input-group button:first-child').disabled = true;
+
+      const loadingMsg = addChatMessage('⏳ Thinking...', 'bot');
+
+      try {
+        const response = await getDeepSeekResponse(message);
+        loadingMsg.remove();
+        addChatMessage(response, 'bot');
+      } catch (error) {
+        loadingMsg.remove();
+        addChatMessage('⚠️ Sorry, I had trouble processing that. Please try again.', 'bot');
+      }
+
+      chatInput.disabled = false;
+      document.querySelector('.chat-input-group button:first-child').disabled = false;
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function addChatMessage(text, type) {
+      const div = document.createElement('div');
+      div.className =
+        `chat-message ${type} px-4 py-2.5 rounded-2xl max-w-[85%] mb-2 text-sm ${type === 'user' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded-br-none ml-auto' : 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-bl-none'}`;
+      const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+      div.innerHTML = `${text} <span class="time block text-xs text-slate-400 dark:text-slate-500 mt-1">${time}</span>`;
+      chatContainer.appendChild(div);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+      return div;
+    }
+
+    async function getDeepSeekResponse(message) {
+      const lowerMsg = message.toLowerCase();
+
+      if (lowerMsg.includes('mtn') || lowerMsg.includes('balance') || lowerMsg.includes('airtime')) {
+        return `📱 MTN Rwanda Info:\n• Balance check: Dial *123#\n• Airtime: Dial *123*PIN#\n• Your numbers: +250 739390715 (Primary), +250 735281339 (Secondary)\n• 5G network is active on your SIM.`;
+      }
+      if (lowerMsg.includes('sms') || lowerMsg.includes('message')) {
+        return `📩 SMS Info:\n• You have ${smsMessages.length} messages in your inbox.\n• You can edit, delete, or translate any message.\n• Use the SMS section for full management.`;
+      }
+      if (lowerMsg.includes('contact') || lowerMsg.includes('person')) {
+        return `👥 Contacts:\n• You have ${contacts.length} contacts registered.\n• Each contact has a QR code and WhatsApp chat option.\n• Use the Contacts section to manage them.`;
+      }
+      if (lowerMsg.includes('hello') || lowerMsg.includes('hi') || lowerMsg.includes('hey')) {
+        return `👋 Hello! I'm DeepSeek AI, your assistant for MTN SMS Hub. Ask me about MTN, SMS, contacts, WhatsApp, or anything else!`;
+      }
+      if (lowerMsg.includes('help') || lowerMsg.includes('what can you do')) {
+        return `🤖 I can help you with:\n• MTN Rwanda services (balance, airtime, 5G)\n• SMS management (view, edit, delete, translate)\n• Contact management (add, edit, delete, QR codes)\n• WhatsApp connection\n• Google Sync for your data\n• Printing contacts and SMS\n• General information about this app\n\nJust ask me anything!`;
+      }
+      if (lowerMsg.includes('whatsapp') || lowerMsg.includes('wa')) {
+        return `💬 WhatsApp Info:\n• Your WhatsApp numbers: +250 739390715, +250 735281339\n• Click "Connect WA" to link WhatsApp\n• You can chat with any contact via WhatsApp from their contact card.`;
+      }
+      if (lowerMsg.includes('google') || lowerMsg.includes('sync')) {
+        return `☁️ Google Sync:\n• Click "Google Sync" to backup your messages and contacts.\n• Your data is stored locally and can be exported anytime.\n• Use the Settings section for more options.`;
+      }
+      if (lowerMsg.includes('print') || lowerMsg.includes('printing')) {
+        return `🖨️ Print:\n• You can print your contacts from the Contacts section.\n• You can print your SMS inbox from the SMS section.\n• Use the "Print" button in each section or the Settings page.`;
+      }
+      if (lowerMsg.includes('deepseek') || lowerMsg.includes('ai')) {
+        return `🤖 DeepSeek AI:\n• You can chat with me here directly!\n• For more advanced features, visit: https://chat.deepseek.com/a/chat/s/897bd014-0012-4c48-a79e-6d1f927ed70b\n• I'm here to help with all your MTN SMS Hub questions.`;
+      }
+
+      try {
+        const url =
+          `https://api.mymemory.translated.net/get?q=${encodeURIComponent(message)}&langpair=en|en`;
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.responseData && data.responseData.translatedText) {
+          return `🤖 Here's what I found about "${message}":\n\nI'm DeepSeek AI integrated into your MTN SMS Hub. I can help you with MTN services, SMS management, contacts, WhatsApp, printing, and more.\n\nTry asking me about MTN, SMS, contacts, WhatsApp, or print!`;
+        }
+      } catch (e) {}
+
+      return `🤖 I received your message: "${message}"\n\nI'm DeepSeek AI, integrated into your MTN SMS Hub. I can help you with:\n• MTN Rwanda services\n• SMS management\n• Contacts & QR codes\n• WhatsApp connection\n• Google Sync\n• Printing contacts and SMS\n\nTry asking me about MTN, SMS, contacts, or WhatsApp!`;
+    }
+
+    function clearChat() {
+      chatContainer.innerHTML = `
+            <div class="chat-message bot bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 px-4 py-2.5 rounded-2xl rounded-bl-none max-w-[85%] mb-2 text-sm">
+              👋 Chat cleared. I'm DeepSeek AI. Ask me anything!
+              <span class="time block text-xs text-slate-400 dark:text-slate-500 mt-1">Just now</span>
+            </div>
+          `;
+      showToast('Chat cleared', 'info');
+    }
+    window.clearChat = clearChat;
+
+    // ---------- THEME CONTROLS ----------
+    function applyImageFilters() {
+      const b = brightnessSlider.value;
+      const e = exposureSlider.value;
+      const c = contrastSlider.value;
+      const h = highlightsSlider.value;
+      document.getElementById('brightnessVal').textContent = b;
+      document.getElementById('exposureVal').textContent = e;
+      document.getElementById('contrastVal').textContent = c;
+      document.getElementById('highlightsVal').textContent = h;
+      document.body.style.filter = `brightness(${b}) contrast(${c})`;
+      localStorage.setItem('brightness', b);
+      localStorage.setItem('exposure', e);
+      localStorage.setItem('contrast', c);
+      localStorage.setItem('highlights', h);
+    }
+
+    function loadThemeControls() {
+      const b = localStorage.getItem('brightness') || '1';
+      const e = localStorage.getItem('exposure') || '1';
+      const c = localStorage.getItem('contrast') || '1';
+      const h = localStorage.getItem('highlights') || '1';
+      brightnessSlider.value = b;
+      exposureSlider.value = e;
+      contrastSlider.value = c;
+      highlightsSlider.value = h;
+      applyImageFilters();
+      const dark = localStorage.getItem('darkMode') === 'true';
+      if (dark) {
+        document.body.classList.add('dark-mode');
+        darkModeToggle.innerHTML = '<i class="fas fa-sun"></i> Light';
+        isDarkMode = true;
+      } else {
+        darkModeToggle.innerHTML = '<i class="fas fa-moon"></i> Dark';
+        isDarkMode = false;
+      }
+    }
+
+    brightnessSlider.addEventListener('input', applyImageFilters);
+    exposureSlider.addEventListener('input', applyImageFilters);
+    contrastSlider.addEventListener('input', applyImageFilters);
+    highlightsSlider.addEventListener('input', applyImageFilters);
+
+    darkModeToggle.addEventListener('click', function() {
+      isDarkMode = !isDarkMode;
+      document.body.classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', isDarkMode);
+      this.innerHTML = isDarkMode ? '<i class="fas fa-sun"></i> Light' : '<i class="fas fa-moon"></i> Dark';
+      showToast(isDarkMode ? 'Dark mode enabled' : 'Light mode enabled', 'info');
+    });
+
+    resetThemeBtn.addEventListener('click', function() {
+      brightnessSlider.value = '1';
+      exposureSlider.value = '1';
+      contrastSlider.value = '1';
+      highlightsSlider.value = '1';
+      applyImageFilters();
+      localStorage.removeItem('brightness');
+      localStorage.removeItem('exposure');
+      localStorage.removeItem('contrast');
+      localStorage.removeItem('highlights');
+      if (document.body.classList.contains('dark-mode')) {
+        document.body.classList.remove('dark-mode');
+        darkModeToggle.innerHTML = '<i class="fas fa-moon"></i> Dark';
+        localStorage.setItem('darkMode', 'false');
+        isDarkMode = false;
+      }
+      showToast('Theme reset to default', 'success');
+    });
+
+    // ---------- CALENDAR ----------
+    function renderCalendar() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth();
+      const today = now.getDate();
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September',
+        'October', 'November', 'December'
+      ];
+      document.getElementById('calendar-month').textContent = `${monthNames[month]} ${year}`;
+
+      const grid = document.getElementById('calendar-grid');
+      grid.innerHTML = '';
+
+      const dayHeaders = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+      dayHeaders.forEach(d => {
+        const div = document.createElement('div');
+        div.className = 'day-header text-xs font-bold text-slate-500 dark:text-slate-400 py-1';
+        div.textContent = d;
+        grid.appendChild(div);
+      });
+
+      const startOffset = firstDay;
+      for (let i = startOffset - 1; i >= 0; i--) {
+        const div = document.createElement('div');
+        div.className = 'day-cell other-month text-slate-400 dark:text-slate-600 text-sm py-1';
+        div.textContent = daysInPrevMonth - i;
+        grid.appendChild(div);
+      }
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const div = document.createElement('div');
+        div.className =
+          `day-cell text-sm py-1 rounded-lg ${d === today ? 'today bg-blue-600 text-white font-bold' : 'text-slate-700 dark:text-slate-300'}`;
+        div.textContent = d;
+        grid.appendChild(div);
+      }
+
+      const totalCells = startOffset + daysInMonth;
+      const remaining = (7 - (totalCells % 7)) % 7;
+      for (let d = 1; d <= remaining; d++) {
+        const div = document.createElement('div');
+        div.className = 'day-cell other-month text-slate-400 dark:text-slate-600 text-sm py-1';
+        div.textContent = d;
+        grid.appendChild(div);
+      }
+    }
+
+    // ---------- CALCULATOR ----------
+    let calcDisplay = document.getElementById('calc-display');
+    let calcExpression = '';
+
+    function calcInput(value) {
+      if (calcExpression === '0' && value !== '.') calcExpression = '';
+      calcExpression += value;
+      calcDisplay.textContent = calcExpression || '0';
+    }
+
+    function calcOperator(op) {
+      if (calcExpression === '' || calcExpression === '0') return;
+      const lastChar = calcExpression.slice(-1);
+      if (['+', '-', '*', '/'].includes(lastChar)) {
+        calcExpression = calcExpression.slice(0, -1);
+      }
+      calcExpression += op;
+      calcDisplay.textContent = calcExpression;
+    }
+
+    function calcClear() {
+      calcExpression = '';
+      calcDisplay.textContent = '0';
+    }
+
+    function calcEquals() {
+      try {
+        const result = Function('"use strict"; return (' + calcExpression + ')')();
+        calcDisplay.textContent = result;
+        calcExpression = String(result);
+      } catch (e) {
+        calcDisplay.textContent = 'Error';
+        calcExpression = '';
+      }
+    }
+
+    // ---------- COLOR THEME ----------
+    const themes = ['default', 'blue', 'green', 'red', 'purple', 'orange', 'pink', 'teal'];
+
+    function applyTheme(theme) {
+      themes.forEach(t => mainNavbar.classList.remove('theme-' + t));
+      mainNavbar.classList.add('theme-' + theme);
+      document.querySelectorAll('.color-option').forEach(el => {
+        el.classList.remove('active-opt');
+        const check = el.querySelector('i');
+        if (check) check.remove();
+        if (el.dataset.theme === theme) {
+          el.classList.add('active-opt');
+          el.innerHTML = '<i class="fas fa-check text-white text-[10px]"></i>';
+        }
+      });
+      localStorage.setItem('navbarTheme', theme);
+      showToast(`Theme changed to ${theme.charAt(0).toUpperCase() + theme.slice(1)}`, 'success');
+    }
+
+    function loadTheme() {
+      const saved = localStorage.getItem('navbarTheme');
+      if (saved && themes.includes(saved)) {
+        applyTheme(saved);
+      } else {
+        applyTheme('default');
+      }
+    }
+
+    colorToggleBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      colorPickerPopup.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!colorToggleBtn.contains(e.target) && !colorPickerPopup.contains(e.target)) {
+        colorPickerPopup.classList.add('hidden');
+      }
+    });
+
+    document.querySelectorAll('.color-option').forEach(opt => {
+      opt.addEventListener('click', function() {
+        const theme = this.dataset.theme;
+        if (theme) {
+          applyTheme(theme);
+          colorPickerPopup.classList.add('hidden');
+        }
+      });
+    });
+
+    // ---------- SECTION SWITCHING ----------
+    function switchSection(sectionId) {
+      document.querySelectorAll('.section').forEach(el => el.classList.add('hidden'));
+      const target = document.getElementById('section-' + sectionId);
+      if (target) target.classList.remove('hidden');
+      document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+      document.querySelectorAll('.nav-links a').forEach(a => {
+        if (a.dataset.section === sectionId) {
+          a.classList.add('active');
+          a.classList.add('bg-white/20', 'text-white', 'shadow-lg', 'shadow-blue-500/20');
+        } else {
+          a.classList.remove('bg-white/20', 'text-white', 'shadow-lg', 'shadow-blue-500/20');
+        }
+      });
+      if (sectionId === 'sms') renderFullSms();
+      if (sectionId === 'contacts') {
+        const countLabel = document.getElementById('contacts-count-label');
+        if (countLabel) countLabel.textContent = `(${contacts.length} contacts)`;
+      }
+    }
+    window.switchSection = switchSection;
+
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const section = this.dataset.section;
+        if (section) switchSection(section);
+      });
+    });
+
+    // ---------- LANGUAGE SELECTOR ----------
+    document.querySelectorAll('.language-selector button').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.language-selector button').forEach(b => b.classList.remove(
+        'active-lang'));
+        this.classList.add('active-lang');
+        currentTranslateLang = this.dataset.lang;
+        showToast(`Language set to ${this.textContent.trim()}`, 'info');
+      });
+    });
+
+    // ---------- TRANSLATE ALL ----------
+    async function translateAllMessages() {
+      const messages = smsMessages;
+      if (messages.length === 0) return showToast('No messages to translate', 'error');
+      showToast(`Translating ${messages.length} messages to ${currentTranslateLang.toUpperCase()}...`, 'info');
+
+      const translatedMsgs = [];
+      for (let i = 0; i < messages.length; i++) {
+        const msg = messages[i];
+        try {
+          const translated = await translateTextApi(msg.msg, currentTranslateLang);
+          translatedMsgs.push({ ...msg, msg: translated, _originalMsg: msg.msg, _lang: currentTranslateLang });
+        } catch (e) {
+          translatedMsgs.push(msg);
+        }
+      }
+
+      smsMessages = translatedMsgs;
+      saveSmsToStorage();
+      renderSms();
+      renderFullSms();
+      showToast(`✅ All messages translated to ${currentTranslateLang.toUpperCase()}!`, 'success');
+    }
+    window.translateAllMessages = translateAllMessages;
+
+    async function translateTextApi(text, targetLang) {
+      try {
+        const url =
+          `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${targetLang}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.responseData && data.responseData.translatedText) {
+          return data.responseData.translatedText;
+        } else {
+          return text;
+        }
+      } catch (e) {
+        return text;
+      }
+    }
+
+    // ---------- EDIT MESSAGE ----------
+    function openEditModal(index) {
+      if (index < 0 || index >= smsMessages.length) return;
+      editingIndex = index;
+      editTextarea.value = smsMessages[index].msg;
+      editModal.classList.remove('hidden');
+      editModal.style.display = 'flex';
+    }
+    window.openEditModal = openEditModal;
+
+    function closeEditModal() {
+      editModal.classList.add('hidden');
+      editModal.style.display = 'none';
+      editingIndex = -1;
+      editTextarea.value = '';
+    }
+    window.closeEditModal = closeEditModal;
+
+    function saveEditMessage() {
+      if (editingIndex < 0 || editingIndex >= smsMessages.length) {
+        closeEditModal();
+        return;
+      }
+      const newMsg = editTextarea.value.trim();
+      if (!newMsg) {
+        showToast('Message cannot be empty', 'error');
+        return;
+      }
+      smsMessages[editingIndex].msg = newMsg;
+      smsMessages[editingIndex]._edited = true;
+      saveSmsToStorage();
+      renderSms();
+      renderFullSms();
+      showToast('✅ Message updated!', 'success');
+      closeEditModal();
+    }
+    window.saveEditMessage = saveEditMessage;
+
+    // ---------- CLEAR ALL MESSAGES ----------
+    function clearAllMessages() {
+      if (smsMessages.length === 0) return showToast('No messages to delete', 'info');
+      if (confirm('Delete all SMS messages? This cannot be undone.')) {
+        smsMessages = [];
+        saveSmsToStorage();
+        renderSms();
+        renderFullSms();
+        updateBadges();
+        showToast('All messages deleted!', 'success');
+      }
+    }
+    window.clearAllMessages = clearAllMessages;
+
+    function deleteMessage(index) {
+      if (index >= 0 && index < smsMessages.length) {
+        smsMessages.splice(index, 1);
+        saveSmsToStorage();
+        renderSms();
+        renderFullSms();
+        updateBadges();
+        showToast('Message deleted', 'info');
+      }
+    }
+    window.deleteMessage = deleteMessage;
+
+    function syncInbox() {
+      renderSms();
+      renderFullSms();
+      if (smsTimestamp) smsTimestamp.textContent = `Updated: ${new Date().toLocaleTimeString('en-US', { hour12: false })}`;
+      showToast('Inbox synced!', 'success');
+    }
+    window.syncInbox = syncInbox;
+
+    // ---------- RENDER SMS ----------
+    function renderSms() {
+      const displayMsgs = smsMessages.slice(-30);
+      smsInbox.innerHTML = '';
+      displayMsgs.forEach((msg, idx) => {
+        const div = document.createElement('div');
+        div.className = 'sms-item flex gap-2 py-1.5 border-b border-slate-100 dark:border-slate-700 text-sm';
+        const actualIdx = smsMessages.length - displayMsgs.length + idx;
+        div.innerHTML = `
+              <span class="time text-slate-400 dark:text-slate-500 text-xs min-w-[60px]">${escapeHtml(msg.time)}</span>
+              <span class="sender font-semibold text-blue-600 dark:text-blue-400 min-w-[80px]">${escapeHtml(msg.sender)}</span>
+              <span class="msg text-slate-700 dark:text-slate-300 flex-1">${escapeHtml(msg.msg)}</span>
+              <div class="msg-actions flex gap-1 items-center">
+                <button class="edit-msg text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 text-xs p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition" onclick="openEditModal(${actualIdx})" title="Edit"><i class="fas fa-edit"></i></button>
+                <button class="delete-msg text-slate-400 hover:text-red-600 dark:hover:text-red-400 text-xs p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition" onclick="deleteMessage(${actualIdx})" title="Delete"><i class="fas fa-times"></i></button>
+              </div>
+            `;
+        smsInbox.appendChild(div);
+      });
+      smsInbox.scrollTop = smsInbox.scrollHeight;
+    }
+
+    function renderFullSms() {
+      if (!smsInboxFull) return;
+      smsInboxFull.innerHTML = '';
+      smsMessages.forEach((msg, idx) => {
+        const div = document.createElement('div');
+        div.className = 'sms-item flex gap-2 py-1.5 border-b border-slate-100 dark:border-slate-700 text-sm';
+        div.innerHTML = `
+              <span class="time text-slate-400 dark:text-slate-500 text-xs min-w-[60px]">${escapeHtml(msg.time)}</span>
+              <span class="sender font-semibold text-blue-600 dark:text-blue-400 min-w-[80px]">${escapeHtml(msg.sender)}</span>
+              <span class="msg text-slate-700 dark:text-slate-300 flex-1">${escapeHtml(msg.msg)}</span>
+              <div class="msg-actions flex gap-1 items-center">
+                <button class="edit-msg text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 text-xs p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition" onclick="openEditModal(${idx})" title="Edit"><i class="fas fa-edit"></i></button>
+                <button class="delete-msg text-slate-400 hover:text-red-600 dark:hover:text-red-400 text-xs p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition" onclick="deleteMessage(${idx})" title="Delete"><i class="fas fa-times"></i></button>
+              </div>
+            `;
+        smsInboxFull.appendChild(div);
+      });
+      smsInboxFull.scrollTop = smsInboxFull.scrollHeight;
+      updateBadges();
+    }
+
+    function updateBadges() {
+      if (contactBadge) contactBadge.textContent = contacts.length;
+      if (smsBadge) smsBadge.textContent = smsMessages.length;
+      if (smsCountLabel) smsCountLabel.textContent = `(${smsMessages.length} messages)`;
+      if (totalMessagesEl) totalMessagesEl.textContent = smsMessages.length;
+      const countLabel = document.getElementById('contacts-count-label');
+      if (countLabel) countLabel.textContent = `(${contacts.length} contacts)`;
+    }
+
+    function simulateIncomingSMS(sender, message) {
+      const now = new Date();
+      const time = now.toLocaleTimeString('en-US', { hour12: false });
+      smsMessages.push({ time: time, sender: sender, msg: message });
+      saveSmsToStorage();
+      renderSms();
+      renderFullSms();
+      updateBadges();
+      showToast(`📩 New SMS from ${sender}`, 'success');
+    }
+    window.simulateIncomingSMS = simulateIncomingSMS;
+
+    // ---------- PASSWORD TOGGLE ----------
+    document.querySelectorAll('.toggle-pw').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const targetId = this.getAttribute('data-target');
+        const input = document.getElementById(targetId);
+        if (input) {
+          if (input.type === 'password') {
+            input.type = 'text';
+            this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+          } else {
+            input.type = 'password';
+            this.innerHTML = '<i class="fas fa-eye"></i>';
+          }
+        }
+      });
+    });
+
+    function handleFingerprint(inputId) {
+      const input = document.getElementById(inputId);
+      if (input) {
+        input.value = 'demo1234';
+        showToast('🔐 Fingerprint recognized! Password filled.', 'success');
+        const btn = input.closest('.input-group').querySelector('.fingerprint-btn');
+        if (btn) {
+          btn.style.color = '#059669';
+          setTimeout(() => { btn.style.color = '#2563eb'; }, 800);
+        }
+      }
+    }
+
+    fingerprintBtn.addEventListener('click', () => handleFingerprint('login-password'));
+    fingerprintSignup.addEventListener('click', () => handleFingerprint('signup-password'));
+
+    // ---------- AUTH ----------
+    tabLogin.addEventListener('click', () => {
+      tabLogin.classList.add('active', 'bg-slate-800', 'text-white');
+      tabSignup.classList.remove('active', 'bg-slate-800', 'text-white');
+      loginForm.classList.remove('hidden');
+      signupForm.classList.add('hidden');
+    });
+    tabSignup.addEventListener('click', () => {
+      tabSignup.classList.add('active', 'bg-slate-800', 'text-white');
+      tabLogin.classList.remove('active', 'bg-slate-800', 'text-white');
+      signupForm.classList.remove('hidden');
+      loginForm.classList.add('hidden');
+    });
+
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const name = email.split('@')[0] || 'User';
+      if (!email) return showToast('Please enter email', 'error');
+      currentUser = name;
+      showDashboard();
+    });
+
+    signupForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('signup-name').value;
+      if (!name) return showToast('Please enter your name', 'error');
+      currentUser = name;
+      showDashboard();
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      currentUser = null;
+      dashboard.style.display = 'none';
+      authContainer.style.display = 'flex';
+      if (clockInterval) clearInterval(clockInterval);
+      loginForm.reset();
+      signupForm.reset();
+      showToast('Logged out', 'info');
+    });
+
+    // ---------- SHOW DASHBOARD ----------
+    function showDashboard() {
+      authContainer.style.display = 'none';
+      dashboard.style.display = 'block';
+      dashUsername.textContent = currentUser;
+      activeUserEl.textContent = currentUser;
+      if (settingsUsername) settingsUsername.textContent = currentUser;
+      updateClock();
+      if (clockInterval) clearInterval(clockInterval);
+      clockInterval = setInterval(updateClock, 1000);
+      loadSmsFromStorage();
+      loadContactsFromStorage();
+      updateConnectivityUI();
+      renderSms();
+      renderFullSms();
+      updateBadges();
+      if (totalMessagesEl) totalMessagesEl.textContent = smsMessages.length;
+      renderCalendar();
+      loadTheme();
+      loadThemeControls();
+
+      // Generate QR for sample contact
+      setTimeout(() => {
+        const sampleQr = document.getElementById('sample-qr');
+        if (sampleQr) {
+          new QRCode(sampleQr, {
+            text: 'MECARD:N:Abdu Salim;EMAIL:salimabdu759@gmail.com;TEL:+250739390715;ID:6478653;;',
+            width: 72,
+            height: 72,
+            correctLevel: QRCode.CorrectLevel.M
+          });
+        }
+      }, 100);
+
+      showToast(`👋 Welcome ${currentUser} to MTN SMS Hub · ELAF!`, 'success');
+      switchSection('home');
+    }
+
+    function updateConnectivityUI() {
+      document.getElementById('status-5g').innerHTML = '<i class="fas fa-wifi"></i> 5G Active';
+
+      statusBt.innerHTML = `<i class="fab fa-bluetooth-b"></i> Bluetooth ${bluetoothOn ? 'On' : 'Off'}`;
+      btStatusText.textContent = bluetoothOn ? 'On' : 'Off';
+      btStatusText.className = bluetoothOn ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500';
+
+      statusSim.textContent = `SIM: ${simProvider}`;
+
+      wifiStatus.textContent = wifiOn ? 'Connected' : 'Disconnected';
+      wifiStatus.className = wifiOn ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
+      wifiOnBtn.className = wifiOn ? 'on px-4 py-1.5 rounded-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold transition' :
+        'px-4 py-1.5 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-sm font-semibold transition';
+    }
+
+    toggleBtBtn.addEventListener('click', () => {
+      bluetoothOn = !bluetoothOn;
+      updateConnectivityUI();
+      showToast(`Bluetooth ${bluetoothOn ? 'Enabled' : 'Disabled'}`, bluetoothOn ? 'success' : 'info');
+    });
+
+    simMtnBtn.addEventListener('click', () => {
+      simProvider = 'MTN';
+      updateConnectivityUI();
+      showToast('📱 SIM set to MTN', 'success');
+      const mtnPayload = `MTN:SIM:${Date.now()}`;
+      qrInput.value = mtnPayload;
+      constructGlobalQr(mtnPayload);
+    });
+
+    wifiOnBtn.addEventListener('click', () => {
+      wifiOn = true;
+      updateConnectivityUI();
+      showToast('WiFi Connected', 'success');
+      const wifiPayload = `WIFI:S:ELAF_5G;T:WPA;P:ProAccess2026;;`;
+      qrInput.value = wifiPayload;
+      constructGlobalQr(wifiPayload);
+    });
+
+    wifiOffBtn.addEventListener('click', () => {
+      wifiOn = false;
+      updateConnectivityUI();
+      showToast('WiFi Disconnected', 'error');
+    });
+
+    refreshNetworkBtn.addEventListener('click', () => {
+      showToast('🔄 Network refreshed: 5G + MTN active', 'info');
+      simulateIncomingSMS('MTN Network', '5G signal strength: Excellent');
+    });
+
+    // ---------- CONTACTS UI ----------
+    function updateDashboardUI(searchTerm) {
+      const emptyMessage = document.getElementById('empty-message');
+      document.querySelectorAll('.contact-card:not(#sample-contact)').forEach(el => el.remove());
+
+      const sampleCard = document.getElementById('sample-contact');
+      if (sampleCard) {
+        const hasSample = contacts.some(c => c.personId === '6478653' && c.name === 'Abdu Salim');
+        sampleCard.style.display = hasSample ? 'block' : 'none';
+      }
+
+      let filteredContacts = contacts.filter(c => !(c.personId === '6478653' && c.name === 'Abdu Salim'));
+      if (searchTerm) {
+        const term = searchTerm.toLowerCase();
+        filteredContacts = filteredContacts.filter(c =>
+          c.name.toLowerCase().includes(term) ||
+          (c.email && c.email.toLowerCase().includes(term)) ||
+          (c.phone && c.phone.includes(term))
+        );
+        const sampleMatches = contacts.some(c =>
+          c.personId === '6478653' &&
+          (c.name.toLowerCase().includes(term) ||
+            (c.email && c.email.toLowerCase().includes(term)) ||
+            (c.phone && c.phone.includes(term)))
+        );
+        if (sampleCard) sampleCard.style.display = sampleMatches ? 'block' : 'none';
+      } else {
+        if (sampleCard) sampleCard.style.display = contacts.some(c => c.personId === '6478653') ? 'block' : 'none';
+      }
+
+      if (filteredContacts.length === 0) {
+        if (emptyMessage) {
+          emptyMessage.style.display = 'block';
+          emptyMessage.textContent = searchTerm ? `🔍 No contacts found for "${searchTerm}"` :
+            '📭 ✨ No contacts yet — add your first person.';
+        }
+      } else {
+        if (emptyMessage) emptyMessage.style.display = 'none';
+        filteredContacts.forEach((contact, index) => {
+          const card = document.createElement('div');
+          card.className =
+            'contact-card bg-white dark:bg-slate-800 rounded-2xl p-4 text-center border border-slate-200 dark:border-slate-700 shadow-sm transition hover:shadow-md';
+          const imgUrl = contact.image ||
+            'https://ui-avatars.com/api/?name=' + encodeURIComponent(contact.name) +
+            '&size=80&background=2563eb&color=fff';
+          const personId = contact.personId || `ID-${String(index+1).padStart(4,'0')}`;
+          const realIndex = contacts.indexOf(contact);
+          card.innerHTML = `
+                <span class="id-badge bg-blue-600 text-white text-xs px-3 py-0.5 rounded-full inline-block mb-2"><i class="fas fa-id-card"></i> ${escapeHtml(personId)}</span>
+                <img src="${imgUrl}" alt="Avatar" class="w-20 h-20 rounded-full mx-auto mb-2 border-2 border-slate-200 dark:border-slate-600" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(contact.name)}&size=80&background=2563eb&color=fff'" />
+                <h3 class="font-semibold text-slate-800 dark:text-slate-200">${escapeHtml(contact.name)}</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400">${escapeHtml(contact.email || 'No Email')}</p>
+                <p class="text-xs text-slate-400 dark:text-slate-500">🗣️ ${escapeHtml(contact.languages || 'Not Specified')}</p>
+                ${contact.cvName ? `<a href="#" class="cv-link text-blue-600 dark:text-blue-400 text-xs hover:underline block mt-1" onclick="event.preventDefault(); showToast('CV: ${escapeHtml(contact.cvName)}', 'info')"><i class="fas fa-file-pdf"></i> ${escapeHtml(contact.cvName)}</a>` : ''}
+                <div class="flex flex-wrap justify-center gap-1 mt-2">
+                  ${contact.phone ? `<a href="https://wa.me/${contact.phone.replace(/\D/g,'')}" target="_blank" class="whatsapp-btn px-3 py-1 rounded-full bg-green-600 hover:bg-green-700 text-white text-xs font-semibold transition"><i class="fab fa-whatsapp"></i> Chat</a>` : ''}
+                  <button class="chat-btn px-3 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold transition" onclick="chatWithContact(${realIndex})"><i class="fas fa-comment"></i> Chat with me</button>
+                </div>
+                <div class="qr-container w-20 h-20 mx-auto my-2 flex justify-center items-center bg-white dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-600" id="card-qr-${realIndex}"></div>
+                <button class="delete-btn px-4 py-1 rounded-full bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs font-semibold transition hover:bg-red-100" data-index="${realIndex}"><i class="fas fa-trash"></i> Remove</button>
+              `;
+          contactsList.appendChild(card);
+
+          setTimeout(() => {
+            const qrContainerElement = document.getElementById(`card-qr-${realIndex}`);
+            if (qrContainerElement) {
+              new QRCode(qrContainerElement, {
+                text: `MECARD:N:${contact.name};EMAIL:${contact.email || ''};TEL:${contact.phone || ''};ID:${personId};;`,
+                width: 72,
+                height: 72,
+                correctLevel: QRCode.CorrectLevel.M
+              });
+            }
+          }, 10);
+        });
+      }
+
+      if (totalPersonsEl) totalPersonsEl.textContent = contacts.length;
+      if (totalImagesEl) totalImagesEl.textContent = contacts.filter(c => c.image && !c.isDefaultAvatar).length;
+      updateBadges();
+      if (dueTodayEl) dueTodayEl.textContent = contacts.length > 0 ? "1" : "0";
+      if (contactBadge) contactBadge.textContent = contacts.length;
+    }
+
+    window.chatWithContact = function(index) {
+      const contact = contacts[index];
+      if (!contact) return showToast('Contact not found', 'error');
+      const msg = `Hello ${contact.name}, this is ${currentUser} from MTN SMS Hub.`;
+      const phone = contact.phone ? contact.phone.replace(/\D/g, '') : '';
+      if (phone) {
+        const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+        window.open(waUrl, '_blank');
+        simulateIncomingSMS('System', `💬 Chat initiated with ${contact.name} via WhatsApp`);
+      } else {
+        showToast(`No phone number for ${contact.name}. Please add one.`, 'error');
+      }
+    };
+
+    // ---------- PERSON FORM ----------
+    personForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('person-name').value;
+      const email = document.getElementById('person-email').value;
+      const phone = document.getElementById('person-phone').value;
+      const personId = document.getElementById('person-id').value || `ID-${String(contacts.length+1).padStart(4,'0')}`;
+      const useAvatar = document.getElementById('use-avatar').checked;
+      const fileInput = document.getElementById('person-image');
+
+      let imageUrl = '';
+      let isDefaultAvatar = false;
+
+      if (useAvatar) {
+        imageUrl = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) +
+          '&size=80&background=2563eb&color=fff';
+        isDefaultAvatar = true;
+        proceed();
+      } else if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          imageUrl = e.target.result;
+          proceed();
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+      } else {
+        imageUrl = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) +
+          '&size=80&background=2563eb&color=fff';
+        isDefaultAvatar = true;
+        proceed();
+      }
+
+      function proceed() {
+        contacts.push({
+          name: name,
+          email: email,
+          phone: phone,
+          personId: personId,
+          image: imageUrl,
+          isDefaultAvatar: isDefaultAvatar,
+          languages: '',
+          cvName: ''
+        });
+        saveContacts();
+        updateDashboardUI();
+        personForm.reset();
+        document.getElementById('person-id').value = '';
+        simulateIncomingSMS('System', `📇 New contact registered: ${name} (ID: ${personId})`);
+        showToast('Person registered successfully!', 'success');
+      }
+    });
+
+    addCvLangBtn.addEventListener('click', () => {
+      const target = getLastContact();
+      if (!target) return;
+      const cvFile = cvUpload.files[0];
+      const languages = languagesInput.value;
+      if (cvFile) target.cvName = cvFile.name;
+      if (languages) target.languages = languages;
+      saveContacts();
+      updateDashboardUI();
+      cvUpload.value = '';
+      languagesInput.value = '';
+      simulateIncomingSMS('System', `📄 CV attached to ${target.name}`);
+      showToast('CV and languages appended!', 'success');
+    });
+
+    editImageBtn.addEventListener('click', () => {
+      const target = getLastContact();
+      if (!target) return;
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      fileInput.onchange = function(e) {
+        const file = this.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          target.image = ev.target.result;
+          target.isDefaultAvatar = false;
+          saveContacts();
+          updateDashboardUI();
+          showToast('Image updated successfully!', 'success');
+          simulateIncomingSMS('System', `🖼️ Image updated for ${target.name}`);
+        };
+        reader.readAsDataURL(file);
+      };
+      fileInput.click();
+    });
+
+    editIdBtn.addEventListener('click', () => {
+      const target = getLastContact();
+      if (!target) return;
+      const newId = prompt('Enter new ID / Passport for ' + target.name, target.personId || '');
+      if (newId !== null && newId.trim() !== '') {
+        target.personId = newId.trim();
+        saveContacts();
+        updateDashboardUI();
+        showToast('ID updated successfully!', 'success');
+        simulateIncomingSMS('System', `🪪 ID updated for ${target.name}`);
+      } else if (newId !== null) {
+        showToast('ID cannot be empty.', 'error');
+      }
+    });
+
+    contactsList.addEventListener('click', (e) => {
+      if (e.target.closest('.delete-btn')) {
+        const idx = e.target.closest('.delete-btn').getAttribute('data-index');
+        if (idx !== null && idx !== undefined) {
+          const name = contacts[idx]?.name || 'Contact';
+          if (contacts[idx]?.personId === '6478653' && contacts[idx]?.name === 'Abdu Salim') {
+            removeSampleContact();
+            return;
+          }
+          contacts.splice(parseInt(idx), 1);
+          saveContacts();
+          updateDashboardUI();
+          simulateIncomingSMS('System', `🗑️ ${name} removed from directory`);
+          showToast('Contact removed.', 'info');
+        }
+      }
+    });
+
+    // ---------- QR ----------
+    function constructGlobalQr(dataText) {
+      qrContainer.innerHTML = '';
+      currentQrText = dataText;
+      qrCodeInstance = new QRCode(qrContainer, {
+        text: dataText,
+        width: 80,
+        height: 80
+      });
+      showToast('QR generated', 'success');
+    }
+
+    generateQrBtn.addEventListener('click', () => {
+      const payload = qrInput.value;
+      if (!payload) return showToast('Enter payload', 'error');
+      constructGlobalQr(payload);
+    });
+
+    wifiQrBtn.addEventListener('click', () => {
+      const scheme = "WIFI:S:ELAF_5G;T:WPA;P:ProAccess2026;;";
+      qrInput.value = scheme;
+      constructGlobalQr(scheme);
+      wifiOn = true;
+      updateConnectivityUI();
+      showToast('WiFi QR ready', 'success');
+    });
+
+    mtnQrBtn.addEventListener('click', () => {
+      const mtnPayload = `MTN:SIM:${Date.now()}:USSD`;
+      qrInput.value = mtnPayload;
+      constructGlobalQr(mtnPayload);
+      showToast('MTN SIM QR generated', 'success');
+    });
+
+    btQrBtn.addEventListener('click', () => {
+      const btPayload = `BT:PAIR:ELAF-${Math.floor(1000 + Math.random()*9000)}`;
+      qrInput.value = btPayload;
+      constructGlobalQr(btPayload);
+      bluetoothOn = true;
+      updateConnectivityUI();
+      showToast('Bluetooth pairing QR', 'info');
+    });
+
+    smsQrBtn.addEventListener('click', () => {
+      const smsPayload = `SMSTO:${MY_NUMBERS[0]}:Hello%20from%20ELAF`;
+      qrInput.value = smsPayload;
+      constructGlobalQr(smsPayload);
+      showToast('SMS QR ready', 'success');
+    });
+
+    downloadQrBtn.addEventListener('click', () => {
+      if (!currentQrText) return showToast('Generate QR first.', 'error');
+      const img = qrContainer.querySelector('img');
+      if (img) {
+        const link = document.createElement('a');
+        link.download = 'elaf-qr.png';
+        link.href = img.src;
+        link.click();
+      } else showToast('Try regenerating QR', 'error');
+    });
+
+    whatsappQrBtn.addEventListener('click', () => {
+      const waPayload = `https://wa.me/${MY_NUMBERS[0].replace(/\s/g,'')}?text=Hello%20from%20ELAF`;
+      qrInput.value = waPayload;
+      constructGlobalQr(waPayload);
+      showToast('WhatsApp QR ready', 'success');
+    });
+
+    printBtn.addEventListener('click', () => { window.print(); });
+
+    // ---------- INIT ----------
+    loadSmsFromStorage();
+    const initialQr = `https://wa.me/${MY_NUMBERS[0].replace(/\s/g,'')}?text=Hello%20from%20ELAF`;
+    qrInput.value = initialQr;
+    constructGlobalQr(initialQr);
+    updateConnectivityUI();
+
+    authContainer.style.display = 'flex';
+    dashboard.style.display = 'none';
+
+    setTimeout(() => {
+      simulateIncomingSMS('MTN Rwanda',
+        '📱 Welcome! Your numbers +250 739390715 and +250 735281339 are active.');
+      showToast('🌟 MTN SMS Hub ready!', 'info');
+    }, 500);
+
+    // Expose globals
+    window.simulateIncomingSMS = simulateIncomingSMS;
+    window.switchSection = switchSection;
+    window.deleteMessage = deleteMessage;
+    window.clearAllMessages = clearAllMessages;
+    window.translateAllMessages = translateAllMessages;
+    window.openEditModal = openEditModal;
+    window.closeEditModal = closeEditModal;
+    window.saveEditMessage = saveEditMessage;
+    window.calcInput = calcInput;
+    window.calcOperator = calcOperator;
+    window.calcClear = calcClear;
+    window.calcEquals = calcEquals;
+    window.sendChatMessage = sendChatMessage;
+    window.clearChat = clearChat;
+    window.performGoogleSearch = performGoogleSearch;
+    window.performWebSearch = performWebSearch;
+    window.googleSyncMessages = googleSyncMessages;
+    window.connectWhatsApp = connectWhatsApp;
+    window.exportContacts = exportContacts;
+    window.removeSampleContact = removeSampleContact;
+    window.printContacts = printContacts;
+    window.printSms = printSms;
+
+    renderCalendar();
+
+  })();
+</script>
+
+</body>
+</html>
